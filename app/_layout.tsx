@@ -16,7 +16,7 @@ export default function Layout() {
         <StatusBar style="auto" />
         <Stack
           screenOptions={{
-            headerShown: false,
+            headerShown: true,
           }}
         />
       </View>
