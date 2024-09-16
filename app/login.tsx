@@ -12,6 +12,7 @@ import {
 import { styled } from "nativewind";
 
 import { Screen } from "../components/Screen";
+import { API_URL } from "@env";
 
 const StyledPressable = styled(Pressable);
 const logoImage = require("../assets/logo.png");
@@ -23,20 +24,32 @@ export default function LoginScreen() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  // Validar correos de @uv.mx o @estudiantes.uv.mx
+  /**
+   * validateEmail
+   * @param email String user's email
+   * @returns bolean
+   */
   const validateEmail = (email: string) => {
     const uvRegex = /^[a-zA-Z0-9._%+-]+@(uv\.mx|estudiantes\.uv\.mx)$/;
     return uvRegex.test(email);
   };
 
+  /**
+   * resetErrors
+   */
   const resetErrors = () => {
     setEmailError("");
     setPasswordError("");
   };
 
+  /**
+   * handleLogin
+   * @returns null
+   */
   const handleLogin = () => {
     resetErrors();
 
+    console.log(API_URL);
     if (!email) {
       setEmailError("Por favor, ingresa tu correo");
       return;
