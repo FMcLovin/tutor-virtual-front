@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRouter } from "expo-router";
+
 import {
   View,
   Text,
@@ -12,17 +12,18 @@ import {
 import { styled } from "nativewind";
 
 import { Screen } from "../components/Screen";
-import { API_URL } from "@env";
+import { useSession } from "./ctx";
+import { API_URL, AUTH_LOGIN } from "@env";
 
 const StyledPressable = styled(Pressable);
 const logoImage = require("../assets/logo.png");
 
 export default function LoginScreen() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const { signIn, session } = useSession();
 
   /**
    * validateEmail
@@ -48,8 +49,8 @@ export default function LoginScreen() {
    */
   const handleLogin = () => {
     resetErrors();
+    console.log(API_URL, AUTH_LOGIN);
 
-    console.log(API_URL);
     if (!email) {
       setEmailError("Por favor, ingresa tu correo");
       return;
@@ -63,8 +64,8 @@ export default function LoginScreen() {
       return;
     }
 
-    Alert.alert("Login exitoso");
-    router.push("/");
+    //Alert.alert("Login exitoso");
+    signIn(email, password);
   };
 
   return (
