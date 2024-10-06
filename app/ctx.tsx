@@ -8,7 +8,10 @@ import { AUTH_LOGIN } from "@env";
 const AuthContext = React.createContext<{
   signIn: (email: string, password: string) => void;
   signOut: () => void;
-  session?: string | null;
+  session?: {
+    token: string;
+    user: any;
+  } | null;
   isLoading: boolean;
 }>({
   signIn: (email: string, password: string) => null,
@@ -41,26 +44,27 @@ const login = async (email: string, password: string) => {
 
 export function SessionProvider(props: React.PropsWithChildren) {
   const router = useRouter();
-  const [[isLoading, session], setSession] = useStorageState("session");
+  const [[isLoading, session], setSession] = useStorageState<{
+    token: string;
+    user: any;
+  }>("session"); // Cambia el tipo según tu estructura
+
   return (
     <AuthContext.Provider
       value={{
         signIn: (email: string, password: string) => {
-          // Add your login logic here
-          // For example purposes, we'll just set a fake session in storage
-          //This likely would be a JWT token or other session data
           login(email, password)
             .then((sessionData) => {
               console.log(sessionData);
-              setSession(sessionData.token);
+              setSession(sessionData); // Guardar todo el objeto { token, user }
               router.push("/");
             })
             .catch((error) => {
-              console.log(58, error);
+              console.log(error);
             });
         },
         signOut: () => {
-          setSession(null);
+          setSession(null); // Limpiar la sesión
         },
         session,
         isLoading,

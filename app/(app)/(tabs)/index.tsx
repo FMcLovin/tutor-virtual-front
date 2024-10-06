@@ -5,10 +5,11 @@ import { useSession } from "../../ctx";
 
 export default function App() {
   const { signOut, session } = useSession();
+  console.log("index.tsx", session);
   return (
     <Screen>
       <Dashboard></Dashboard>
-      <Text>Welcome, {session}</Text>
+      <Text>Welcome, {session?.token}</Text>
       <Button
         title="Sign Out"
         onPress={() => {

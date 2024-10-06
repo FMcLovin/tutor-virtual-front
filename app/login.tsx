@@ -5,18 +5,20 @@ import {
   Text,
   TextInput,
   Pressable,
-  Alert,
   Platform,
   Image,
+  useWindowDimensions,
 } from "react-native";
 import { styled } from "nativewind";
 
-import { Screen } from "../components/Screen";
 import { useSession } from "./ctx";
 import { API_URL, AUTH_LOGIN } from "@env";
+import { Redirect } from "expo-router";
 
 const StyledPressable = styled(Pressable);
 const logoImage = require("../assets/logo.png");
+const blurryDesktop = require("../assets/blurry_desktop.svg");
+const blurryPhone = require("../assets/blurry_phone.svg");
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -24,6 +26,10 @@ export default function LoginScreen() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const { signIn, session } = useSession();
+  const { width } = useWindowDimensions();
+
+  const isWeb = Platform.OS === "web";
+  const isLargeScreen = width >= 1024;
 
   /**
    * validateEmail
@@ -68,63 +74,74 @@ export default function LoginScreen() {
     signIn(email, password);
   };
 
+  if (session) {
+    return <Redirect href="/" />;
+  }
   return (
-    <Screen>
-      <View className="flex-1 items-center justify-center">
-        {/* Logo UV */}
-        <Image
-          source={logoImage}
-          className="w-full h-32 object-contain mb-6"
-          resizeMode="contain"
-        />
-
-        <Text className="text-2xl font-bold mb-1 text-primary">MiTutor UV</Text>
-        <Text className="text-xl mb-6">Inicia Sesión</Text>
-
-        {/* Campo de correo */}
-        <TextInput
-          className="border border-gray-300 rounded-lg px-4 py-2 mb-4 w-full"
-          placeholder="Correo"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        {emailError ? (
-          <Text className="text-red-500 mb-4">{emailError}</Text>
-        ) : null}
-
-        {/* Campo de contraseña */}
-        <TextInput
-          className="border border-gray-300 rounded-lg px-4 py-2 mb-6 w-full"
-          placeholder="Contraseña"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        {passwordError ? (
-          <Text className="text-red-500 mb-4">{passwordError}</Text>
-        ) : null}
-
-        {/* Botón de login */}
-        <StyledPressable
-          onPress={handleLogin}
-          className="w-full p-4 rounded-lg bg-primary active:opacity-70"
-        >
-          <Text className="text-white text-center font-bold">
-            Iniciar sesión
-          </Text>
-        </StyledPressable>
-
-        {/* Muestra si la app corre en web o móvil */}
-        {Platform.OS === "web" ? (
-          <Text className="mt-4 text-sm text-gray-500">Estás en la web</Text>
-        ) : (
-          <Text className="mt-4 text-sm text-gray-500">
-            Estás en un dispositivo móvil
-          </Text>
+    <View className="flex-1 flex-row">
+      {/* Muestra si la app corre en web o móvil */}
+      {isWeb && isLargeScreen && (
+        <View className="flex-1 items-center justify-center bg-slate-300">
+          <Image className="h-full w-full" source={blurryDesktop} />
+        </View>
+      )}
+      <View className="flex-1 items-center justify-center p-4">
+        {!isWeb && (
+          <Image className="h-full w-full absolute" source={blurryPhone} />
         )}
+        {/* Formulario de inicio de sesión */}
+        <View
+          className={`flex-1 items-center justify-center ${
+            isLargeScreen ? "w-1/2" : "w-9/12"
+          }`}
+        >
+          <Image
+            source={logoImage}
+            className="w-full h-32 object-contain mb-6"
+            resizeMode="contain"
+          />
+
+          <Text className="text-2xl font-bold mb-1 text-primary">
+            MiTutor UV
+          </Text>
+          <Text className="text-xl mb-6">Inicia Sesión</Text>
+
+          {/* Campo de correo */}
+          <TextInput
+            className="border border-gray-300 rounded-lg px-4 py-2 mb-4 w-full"
+            placeholder="Correo"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          {emailError ? (
+            <Text className="text-red-500 mb-4">{emailError}</Text>
+          ) : null}
+
+          {/* Campo de contraseña */}
+          <TextInput
+            className="border border-gray-300 rounded-lg px-4 py-2 mb-6 w-full"
+            placeholder="Contraseña"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          {passwordError ? (
+            <Text className="text-red-500 mb-4">{passwordError}</Text>
+          ) : null}
+
+          {/* Botón de login */}
+          <StyledPressable
+            onPress={handleLogin}
+            className="w-full p-4 rounded-lg bg-primary active:opacity-70"
+          >
+            <Text className="text-white text-center font-bold">
+              Iniciar sesión
+            </Text>
+          </StyledPressable>
+        </View>
       </View>
-    </Screen>
+    </View>
   );
 }
