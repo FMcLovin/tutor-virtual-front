@@ -1,37 +1,107 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, TextInput, Pressable } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  TextInput,
+  Pressable,
+  Alert,
+} from "react-native";
 import { Screen } from "../../../components/Screen";
 import { useSession } from "../../ctx";
 import { styled } from "nativewind";
+import { get, post } from "../../../services";
+import { GET_CHAT_BY_USER_ID, CREATE_CHAT, GET_CHAT } from "@env";
 
 export default function App() {
-  const { signOut, session } = useSession();
+  const { session } = useSession();
   const [messages, setMessages] = useState([
-    { text: "Hola, ¿cómo puedo ayudarte hoy?", sender: "bot" },
+    {
+      text: `Hola ${session?.user.username}, ¿cómo puedo ayudarte hoy?`,
+      sender: "bot",
+    },
   ]);
   const [inputText, setInputText] = useState("");
   const StyledPressable = styled(Pressable);
 
-  // Función para enviar un mensaje
+  useEffect(() => {
+    fetchChatByUserId();
+  }, []);
+
+  /**
+   * fetchChatByUserId
+   * @returns Promise containing user chat or null
+   */
+  const fetchChatByUserId = async () => {
+    return await get(
+      `${GET_CHAT_BY_USER_ID}${session?.user._id}`,
+      session?.token,
+    )
+      .then((response) => {
+        console.log("index.tsx: fetchChatByUserId", response);
+        fetchChatDetails(response.chat_id);
+      })
+      .catch((error) => {
+        if (error.error === "Chat not found") {
+          console.log(error.error);
+          createChat();
+        }
+      });
+  };
+
+  /**
+   * Get Chat details
+   * @param chatId chat's id
+   * @returns Promise containing chat data
+   */
+  const fetchChatDetails = async (chatId: string) => {
+    return await get(`${GET_CHAT}${chatId}`, session?.token)
+      .then((chatDetails) => {
+        console.log("fetchChatDetails:", chatDetails);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  /**
+   * Creates new chat
+   * @returns Promise containing the new chat
+   */
+  const createChat = async () => {
+    return await post(
+      CREATE_CHAT,
+      { userId: session?.user.userid },
+      session?.token,
+    )
+      .then((newChat) => {
+        console.log("createChat: ", newChat);
+      })
+      .catch((error) => {
+        throw new Error("Error al crear un nuevo chat.");
+      });
+  };
+
+  /**
+   * sendMessage
+   * Envía un mensaje a la API y actualiza los mensajes
+   */
   const sendMessage = () => {
     if (inputText.trim() === "") return;
 
-    // Agregar el mensaje del usuario a la lista de mensajes
     const userMessage = { text: inputText, sender: "user" };
     setMessages([...messages, userMessage]);
-
-    // Limpiar el input
     setInputText("");
 
-    // Simular respuesta del bot o conectar a tu API de IA
     setTimeout(() => {
       const botResponse = {
-        text: "Esta es una respuesta de la IA a tu mensaje: " + inputText,
+        text: `Esta es una respuesta de la IA a tu mensaje: ${inputText}`,
         sender: "bot",
       };
       setMessages((prevMessages) => [...prevMessages, botResponse]);
-    }, 1000); // Simula un retraso en la respuesta
+    }, 1000);
   };
+
   return (
     <Screen>
       {/* Contenedor del chat */}

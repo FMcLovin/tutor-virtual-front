@@ -15,8 +15,6 @@ const makeRequest = async (
   }
 
   try {
-    console.log(`${API_URL}/${endpoint}`);
-
     const response = await fetch(`${API_URL}/${endpoint}`, {
       method,
       headers,
@@ -30,12 +28,16 @@ const makeRequest = async (
     if (!response.ok) {
       const message =
         data?.message || `Error ${response.status}: ${response.statusText}`;
-      throw new Error(message);
+
+      const requestError = new Error(message);
+      (requestError as any).error =
+        data?.error ?? "Ha ocurrido un error, vuelve a intentarlo más tarde";
+      (requestError as any).status = response.status;
+      throw requestError;
     }
 
     return data;
   } catch (error: any) {
-    console.error(`Error en la petición ${method} ${endpoint}:`, error.message);
     throw error;
   }
 };

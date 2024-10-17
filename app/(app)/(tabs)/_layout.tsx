@@ -15,7 +15,7 @@ export default function TabLayout() {
         headerRight: () => (
           <StyledPressable
             onPress={signOut}
-            className="p-2 rounded-lg bg-primary active:opacity-70 mr-4"
+            className="p-2 rounded-lg bg-danger active:opacity-70 mr-4"
           >
             <Text className="text-white text-center font-bold">
               Cerrar sesión
