@@ -16,7 +16,7 @@ import { GET_CHAT_BY_USER_ID, CREATE_CHAT, GET_CHAT } from "@env";
 export default function App() {
   const { session } = useSession();
   const [messages, setMessages] = useState<
-    { content: string; sender: string }[]
+    { content: string; sender: string; timestamp: string }[]
   >([]);
   const [inputText, setInputText] = useState("");
   const StyledPressable = styled(Pressable);
@@ -68,6 +68,7 @@ export default function App() {
           {
             content: `Hola ${session?.user.username}, ¿cómo puedo ayudarte hoy?`,
             sender: "bot",
+            timestamp: new Date().toString(),
           },
         ]);
       })
@@ -96,6 +97,7 @@ export default function App() {
           {
             content: `Hola ${session?.user.username}, ¿cómo puedo ayudarte hoy?`,
             sender: "bot",
+            timestamp: new Date().toString(),
           },
         ]);
       })
@@ -110,7 +112,7 @@ export default function App() {
    * @param chatMessages los mensajes que se desean añadir
    */
   const initChatMessages = (
-    chatMessages: { content: string; sender: string }[],
+    chatMessages: { content: string; sender: string; timestamp: string }[],
   ) => {
     console.log("initChatMessages: ", chatMessages);
     if (chatMessages.length > 0) {
@@ -125,7 +127,11 @@ export default function App() {
   const sendMessage = () => {
     if (inputText.trim() === "") return;
 
-    const userMessage = { content: inputText, sender: "user" };
+    const userMessage = {
+      content: inputText,
+      sender: "user",
+      timestamp: new Date().toString(),
+    };
     setMessages([...messages, userMessage]);
     setInputText("");
 
@@ -138,6 +144,7 @@ export default function App() {
         const chatMessages = {
           content: "Aquí va la respuesta de la IA",
           sender: "ia",
+          timestamp: new Date().toString(),
         };
         // Actualiza los mensajes con la nueva función
         updateChatMessages(chatMessages);
@@ -155,6 +162,7 @@ export default function App() {
   const updateChatMessages = (chatMessage: {
     content: string;
     sender: string;
+    timestamp: string;
   }) => {
     console.log("updateChatMessages: ", chatMessage);
     setMessages((prevMessages) => [...prevMessages, chatMessage]);
@@ -180,6 +188,10 @@ export default function App() {
               }`}
             >
               <Text className="text-base">{message.content}</Text>
+              <Text className="text-xs text-gray-500 mt-1">
+                {new Date(message.timestamp).toLocaleString()}{" "}
+                {/* Puedes ajustar el formato de la fecha aquí */}
+              </Text>
             </View>
           </View>
         ))}
