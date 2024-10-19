@@ -10,19 +10,17 @@ import {
 import { Screen } from "../../../components/Screen";
 import { useSession } from "../../ctx";
 import { styled } from "nativewind";
-import { get, post } from "../../../services";
+import { get, post, put } from "../../../services";
 import { GET_CHAT_BY_USER_ID, CREATE_CHAT, GET_CHAT } from "@env";
 
 export default function App() {
   const { session } = useSession();
-  const [messages, setMessages] = useState([
-    {
-      text: `Hola ${session?.user.username}, ¿cómo puedo ayudarte hoy?`,
-      sender: "bot",
-    },
-  ]);
+  const [messages, setMessages] = useState<
+    { content: string; sender: string }[]
+  >([]);
   const [inputText, setInputText] = useState("");
   const StyledPressable = styled(Pressable);
+  const [chatID, setChatID] = useState("");
 
   useEffect(() => {
     fetchChatByUserId();
@@ -39,6 +37,7 @@ export default function App() {
     )
       .then((response) => {
         console.log("index.tsx: fetchChatByUserId", response);
+        setChatID(response.chat_id);
         fetchChatDetails(response.chat_id);
       })
       .catch((error) => {
@@ -58,6 +57,19 @@ export default function App() {
     return await get(`${GET_CHAT}${chatId}`, session?.token)
       .then((chatDetails) => {
         console.log("fetchChatDetails:", chatDetails);
+
+        // Extrae los mensajes del chat y actualiza el estado
+        const chatMessages = chatDetails?.conversation?.messages || [];
+
+        // Actualiza los mensajes con la nueva función
+        initChatMessages(chatMessages);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            content: `Hola ${session?.user.username}, ¿cómo puedo ayudarte hoy?`,
+            sender: "bot",
+          },
+        ]);
       })
       .catch((error) => {
         console.log(error);
@@ -76,10 +88,34 @@ export default function App() {
     )
       .then((newChat) => {
         console.log("createChat: ", newChat);
+        setChatID(newChat._id);
+        const chatMessages = newChat?.conversation?.messages || [];
+        initChatMessages(chatMessages);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            content: `Hola ${session?.user.username}, ¿cómo puedo ayudarte hoy?`,
+            sender: "bot",
+          },
+        ]);
       })
       .catch((error) => {
         throw new Error("Error al crear un nuevo chat.");
       });
+  };
+
+  /**
+   * initChatMessages
+   * Actualiza los mensajes del chat en el estado
+   * @param chatMessages los mensajes que se desean añadir
+   */
+  const initChatMessages = (
+    chatMessages: { content: string; sender: string }[],
+  ) => {
+    console.log("initChatMessages: ", chatMessages);
+    if (chatMessages.length > 0) {
+      setMessages((prevMessages) => [...prevMessages, ...chatMessages]);
+    }
   };
 
   /**
@@ -89,17 +125,39 @@ export default function App() {
   const sendMessage = () => {
     if (inputText.trim() === "") return;
 
-    const userMessage = { text: inputText, sender: "user" };
+    const userMessage = { content: inputText, sender: "user" };
     setMessages([...messages, userMessage]);
     setInputText("");
 
-    setTimeout(() => {
-      const botResponse = {
-        text: `Esta es una respuesta de la IA a tu mensaje: ${inputText}`,
-        sender: "bot",
-      };
-      setMessages((prevMessages) => [...prevMessages, botResponse]);
-    }, 1000);
+    put(`${GET_CHAT}${chatID}`, { content: inputText }, session?.token)
+      .then((chatDetails) => {
+        console.log("sendMessage:", chatDetails);
+
+        // Extrae los mensajes del chat y actualiza el estado
+        //const chatMessages = chatDetails?.conversation?.messages || [];
+        const chatMessages = {
+          content: "Aquí va la respuesta de la IA",
+          sender: "ia",
+        };
+        // Actualiza los mensajes con la nueva función
+        updateChatMessages(chatMessages);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  /**
+   * updateChatMessages
+   * Actualiza los mensajes del chat en el estado
+   * @param chatMessages los mensajes que se desean añadir
+   */
+  const updateChatMessages = (chatMessage: {
+    content: string;
+    sender: string;
+  }) => {
+    console.log("updateChatMessages: ", chatMessage);
+    setMessages((prevMessages) => [...prevMessages, chatMessage]);
   };
 
   return (
@@ -109,13 +167,20 @@ export default function App() {
         {messages.map((message, index) => (
           <View
             key={index}
-            className={`p-3 rounded-lg my-1 ${
-              message.sender === "user"
-                ? "bg-green-200 self-end"
-                : "bg-gray-200 self-start"
+            className={`w-3/4 ${
+              message.sender === "user" ? "self-end" : "self-start"
             }`}
           >
-            <Text className="text-base">{message.text}</Text>
+            <View
+              key={index}
+              className={`p-3 rounded-lg my-2 w-auto max-w-fit ${
+                message.sender === "user"
+                  ? "bg-green-200 self-end"
+                  : "bg-blue-200 self-start"
+              }`}
+            >
+              <Text className="text-base">{message.content}</Text>
+            </View>
           </View>
         ))}
       </ScrollView>
