@@ -1,7 +1,11 @@
 import { Tabs } from "expo-router";
-import { ChatIcon, AboutIcon } from "../../../components/icons/Icons";
+import {
+  ChatIcon,
+  AboutIcon,
+  ClipBoard,
+} from "../../../components/icons/Icons";
 import { useSession } from "../../ctx";
-import { Button, Pressable, Text } from "react-native";
+import { Pressable, Text } from "react-native";
 import { styled } from "nativewind";
 
 const StyledPressable = styled(Pressable);
@@ -36,6 +40,13 @@ export default function TabLayout() {
         options={{
           title: "Settings",
           tabBarIcon: ({ color }) => <AboutIcon size={28} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="manager"
+        options={{
+          title: "Contenido",
+          tabBarIcon: ({ color }) => <ClipBoard size={28} color={color} />,
         }}
       />
     </Tabs>

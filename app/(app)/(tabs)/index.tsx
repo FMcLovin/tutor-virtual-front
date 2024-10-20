@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -21,10 +21,15 @@ export default function App() {
   const [inputText, setInputText] = useState("");
   const StyledPressable = styled(Pressable);
   const [chatID, setChatID] = useState("");
+  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     fetchChatByUserId();
   }, []);
+
+  useEffect(() => {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  }, [messages]);
 
   /**
    * fetchChatByUserId
@@ -171,7 +176,13 @@ export default function App() {
   return (
     <Screen>
       {/* Contenedor del chat */}
-      <ScrollView className="flex-1">
+      <ScrollView
+        ref={scrollViewRef}
+        className="flex-1"
+        onContentSizeChange={() =>
+          scrollViewRef.current?.scrollToEnd({ animated: true })
+        }
+      >
         {messages.map((message, index) => (
           <View
             key={index}

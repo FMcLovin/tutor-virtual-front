@@ -4,4 +4,6 @@ declare module "@env" {
   export const GET_CHAT_BY_USER_ID: string;
   export const CREATE_CHAT: string;
   export const GET_CHAT: string;
+  export const GET_CONTENT: string;
+  export const CREATE_CONTENT: string;
 }
