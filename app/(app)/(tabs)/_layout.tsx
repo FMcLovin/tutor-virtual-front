@@ -12,6 +12,7 @@ const StyledPressable = styled(Pressable);
 
 export default function TabLayout() {
   const { signOut } = useSession();
+
   return (
     <Tabs
       screenOptions={{
@@ -36,17 +37,18 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="about"
-        options={{
-          title: "Settings",
-          tabBarIcon: ({ color }) => <AboutIcon size={28} color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="manager"
         options={{
           title: "Contenido",
           tabBarIcon: ({ color }) => <ClipBoard size={28} color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="about"
+        options={{
+          title: "Settings",
+          tabBarIcon: ({ color }) => <AboutIcon size={28} color={color} />,
         }}
       />
     </Tabs>

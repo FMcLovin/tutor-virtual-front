@@ -8,6 +8,7 @@ import {
   View,
   FlatList,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { Screen } from "../../../components/Screen";
 import { get } from "../../../services";
 import { GET_CONTENT } from "@env";
@@ -16,6 +17,7 @@ import { Eye, TrashIcon, Pen } from "../../../components/icons/Icons";
 
 export default function App() {
   const { session } = useSession();
+  const router = useRouter();
   const [content, setContent] = useState<
     {
       _id: string;
@@ -52,12 +54,18 @@ export default function App() {
       });
   };
 
+  const createContent = () => {
+    console.log("createContent", "Create content pressed!");
+    router.push("manager/create");
+  };
+
   /**
    * editContent
    * @param contentID content string ID
    */
   const editContent = (contentID: string) => {
     console.log("editContent", "Edit content pressed!", contentID);
+    router.push(`manager/${contentID}?isEditing=true`);
   };
 
   /**
@@ -74,6 +82,7 @@ export default function App() {
    */
   const openContent = (contentID: string) => {
     console.log("openContent", "Open content pressed!", contentID);
+    router.push(`manager/${contentID}`);
   };
 
   if (isLoading)
@@ -131,6 +140,15 @@ export default function App() {
         )}
         ItemSeparatorComponent={() => <View className="h-px bg-gray-200" />}
       />
+
+      <Pressable
+        className="absolute bottom-6 right-6 bg-primary p-4 rounded-full shadow-lg"
+        onPress={createContent}
+      >
+        <Text style={{ userSelect: "none" }} className="text-white font-bold">
+          Crear contenido
+        </Text>
+      </Pressable>
     </Screen>
   );
 }
