@@ -37,6 +37,10 @@ export default function App() {
     fetchContent();
   }, []);
 
+  /**
+   * fetchContent
+   * Obtiene el contenido creado
+   */
   const fetchContent = () => {
     setLoading(true);
     get(GET_CONTENT, session?.token)
@@ -54,6 +58,10 @@ export default function App() {
       });
   };
 
+  /**
+   * createContent
+   * redirecciona a la pantalla de creación de contenido
+   */
   const createContent = () => {
     console.log("createContent", "Create content pressed!");
     router.push("manager/create");
@@ -72,8 +80,8 @@ export default function App() {
    * deleteContent
    * @param contentID content string ID
    */
-  const deleteContent = (contentID: string) => {
-    console.log("deleteContent", "Delete content pressed!", contentID);
+  const deleteContent = (contentID: string, index: number) => {
+    console.log("deleteContent", "Delete content pressed!", contentID, index);
   };
 
   /**
@@ -97,7 +105,7 @@ export default function App() {
       <FlatList
         data={content}
         keyExtractor={(item) => item._id}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <View className="flex flex-row justify-between items-center py-5">
             <View className="flex-1 min-w-0 gap-x-4">
               <Text className="text-sm font-semibold leading-6 text-gray-900">
@@ -111,7 +119,7 @@ export default function App() {
             <View className="flex-shrink-0 flex sm:flex-row sm:items-end pl-1">
               <StyledPressable
                 onPress={() => {
-                  deleteContent(item._id);
+                  deleteContent(item._id, index);
                 }}
                 className="p-3 mr-1 mb-1 rounded-lg bg-danger active:opacity-70"
               >

@@ -10,7 +10,7 @@ import {
   TextInput,
 } from "react-native";
 import { Screen } from "../../../components/Screen";
-import { get } from "../../../services";
+import { get, put } from "../../../services";
 import { GET_CONTENT, GET_USER } from "@env";
 import { useLocalSearchParams } from "expo-router";
 import { CancelIcon, Pen, CheckIcon } from "../../../components/icons/Icons";
@@ -77,7 +77,23 @@ export default function App() {
     }
   };
 
-  const updateContent = () => {};
+  /**
+   * updateContent
+   * Actualiza el contenido
+   */
+  const updateContent = () => {
+    put(`${GET_CONTENT}${id}`, editingContent, session?.token)
+      .then((contentDetails) => {
+        console.log("updateContent:", contentDetails);
+        setContent(contentDetails);
+        setEditingContent(contentDetails);
+        setEditing(false);
+        alert("Contenido editado");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   if (isLoading)
     return (
@@ -105,7 +121,12 @@ export default function App() {
               {/* Botones solo visibles en modo edición */}
               {editing ? (
                 <>
-                  <StyledPressable className="w-10 h-10 p-2 flex items-center justify-center mr-1 rounded-lg bg-success active:opacity-70">
+                  <StyledPressable
+                    onPress={() => {
+                      updateContent();
+                    }}
+                    className="w-10 h-10 p-2 flex items-center justify-center mr-1 rounded-lg bg-success active:opacity-70"
+                  >
                     <CheckIcon
                       className="text-center"
                       size={20}
