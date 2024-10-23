@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Screen } from "../../../components/Screen";
-import { get } from "../../../services";
+import { get, del } from "../../../services";
 import { GET_CONTENT } from "@env";
 
 import { Eye, TrashIcon, Pen } from "../../../components/icons/Icons";
@@ -82,6 +82,15 @@ export default function App() {
    */
   const deleteContent = (contentID: string, index: number) => {
     console.log("deleteContent", "Delete content pressed!", contentID, index);
+    del(`${GET_CONTENT}${contentID}`, session?.token)
+      .then((chatDetails) => {
+        console.log("sendMessage:", chatDetails);
+        setContent((prevContent) => prevContent.filter((_, i) => i !== index));
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("Ha ocurrido un error eliminando el contenido");
+      });
   };
 
   /**
