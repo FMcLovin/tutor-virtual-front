@@ -9,14 +9,15 @@ import {
   FlatList,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Screen } from "../../../components/Screen";
 import { get, del, post } from "../../../services";
 import { GET_CONTENT, TEST_CONTENT } from "@env";
 
+import { Screen } from "../../../components/Screen";
 import { Eye, TrashIcon, Pen, PlayIcon } from "../../../components/icons/Icons";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Modal from "react-native-modal";
 
 export default function App() {
   const { session } = useSession();
@@ -34,6 +35,17 @@ export default function App() {
   >([]);
   const [isLoading, setLoading] = useState(true);
   const [loadingAction, setLoadingAction] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [testedContent, setTestedContent] = useState<{
+    _id: string;
+    question: string;
+    answer: string;
+    created_by: string;
+    category: string;
+    created_at: string;
+    updated_at: string;
+  }>();
+  const [serverAnswer, setServerAnswer] = useState("");
 
   const StyledPressable = styled(Pressable);
 
@@ -58,6 +70,7 @@ export default function App() {
       })
       .catch((error) => {
         console.log("fetchContent", error.error);
+        toast.error("Ha ocurrido un error obteniendo el contenido");
         setLoading(false);
       });
   };
@@ -93,7 +106,7 @@ export default function App() {
       })
       .catch((error) => {
         console.log(error);
-        alert("Ha ocurrido un error eliminando el contenido");
+        toast.error("Ha ocurrido un error eliminando el contenido");
       });
   };
 
@@ -113,7 +126,8 @@ export default function App() {
    */
   const testContent = (contentID: string, index: number) => {
     setLoadingAction(true);
-    console.log("testContent", "Test content pressed!", contentID, index);
+    setTestedContent(content[index]);
+    console.log("testContent", "Test content pressed!", testedContent);
     let testContent = {
       question: content[index].question,
       answer: content[index].answer,
@@ -123,14 +137,39 @@ export default function App() {
     post(TEST_CONTENT, testContent, session?.token)
       .then((response) => {
         console.log("testContent", response);
+        setServerAnswer(response.message);
         setLoadingAction(false);
-        toast.success("This is a success message!");
+        toggleModal();
       })
       .catch((error) => {
         console.log("testContent", error.error);
         setLoadingAction(false);
         toast.error("Ha ocurrido un error, vuelve a intentarlo");
       });
+  };
+
+  /**
+   * toggleModal
+   */
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  /**
+   * wrongAnswer
+   */
+  const wrongAnswer = () => {
+    if (testedContent != null) {
+      toggleModal();
+      editContent(testedContent?._id);
+    } else toast.error("Ha ocurrido un error, vuelve a intentarlo");
+  };
+
+  /**
+   * correctAnswer
+   */
+  const correctAnswer = () => {
+    toggleModal();
   };
 
   if (isLoading)
@@ -142,6 +181,54 @@ export default function App() {
 
   return (
     <Screen>
+      <Modal isVisible={isModalVisible}>
+        <View className="flex justify-center items-center">
+          <View className="bg-white rounded-lg max-w-lg w-full p-6 shadow-lg z-50">
+            <View className="flex flex-row justify-between items-center mb-4">
+              <Text className="text-xl font-semibold text-gray-800">
+                Respuesta de la IA
+              </Text>
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-sm text-gray-600">
+                La pregunta fue: {testedContent?.answer}
+              </Text>
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-sm text-gray-600">
+                La respuesta es: {serverAnswer}
+              </Text>
+            </View>
+
+            <View className="flex flex-row justify-between items-center mb-4">
+              <Pressable
+                onPress={() => {
+                  wrongAnswer();
+                }}
+                className="bg-danger py-2 px-4 rounded-lg hover:bg-red-900"
+              >
+                <Text className="text-center font-bold text-white">
+                  Corregir
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => {
+                  correctAnswer();
+                }}
+                className="bg-success py-2 px-4 rounded-lg hover:bg-green-900"
+              >
+                <Text className="text-center font-bold text-white">
+                  Correcto
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <ToastContainer position="bottom-center" style={{ bottom: "80px" }} />
       <FlatList
         data={content}

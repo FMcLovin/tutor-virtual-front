@@ -14,6 +14,8 @@ import { get, put } from "../../../services";
 import { GET_CONTENT, GET_USER } from "@env";
 import { useLocalSearchParams } from "expo-router";
 import { CancelIcon, Pen, CheckIcon } from "../../../components/icons/Icons";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
   const { session } = useSession();
@@ -56,6 +58,7 @@ export default function App() {
 
       setLoading(false);
     } catch (error) {
+      toast.error("Ha ocurrido un error, vuelve a intentarlo");
       console.log("fetchContent", error);
       setLoading(false);
     }
@@ -88,10 +91,11 @@ export default function App() {
         setContent(contentDetails);
         setEditingContent(contentDetails);
         setEditing(false);
-        alert("Contenido editado");
+        toast.success("Contenido editado");
       })
       .catch((error) => {
         console.log(error);
+        toast.error("Ha ocurrido un error, vuelve a intentarlo");
       });
   };
 
@@ -105,6 +109,7 @@ export default function App() {
   if (content != null && editingContent != null)
     return (
       <View className="flex-1 p-6 bg-background">
+        <ToastContainer position="bottom-center" style={{ bottom: "80px" }} />
         <ScrollView className="flex-1 bg-background h-full">
           <View className="w-full flex flex-row px-4 sm:px-0">
             <View className="w-3/4">
