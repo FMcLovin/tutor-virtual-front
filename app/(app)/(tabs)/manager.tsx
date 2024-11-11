@@ -15,6 +15,9 @@ import { GET_CONTENT, TEST_CONTENT } from "@env";
 
 import { Eye, TrashIcon, Pen, PlayIcon } from "../../../components/icons/Icons";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function App() {
   const { session } = useSession();
   const router = useRouter();
@@ -121,10 +124,12 @@ export default function App() {
       .then((response) => {
         console.log("testContent", response);
         setLoadingAction(false);
+        toast.success("This is a success message!");
       })
       .catch((error) => {
         console.log("testContent", error.error);
         setLoadingAction(false);
+        toast.error("Ha ocurrido un error, vuelve a intentarlo");
       });
   };
 
@@ -137,6 +142,7 @@ export default function App() {
 
   return (
     <Screen>
+      <ToastContainer position="bottom-center" style={{ bottom: "80px" }} />
       <FlatList
         data={content}
         keyExtractor={(item) => item._id}
