@@ -10,10 +10,10 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Screen } from "../../../components/Screen";
-import { get, del } from "../../../services";
-import { GET_CONTENT } from "@env";
+import { get, del, post } from "../../../services";
+import { GET_CONTENT, TEST_CONTENT } from "@env";
 
-import { Eye, TrashIcon, Pen } from "../../../components/icons/Icons";
+import { Eye, TrashIcon, Pen, PlayIcon } from "../../../components/icons/Icons";
 
 export default function App() {
   const { session } = useSession();
@@ -30,6 +30,7 @@ export default function App() {
     }[]
   >([]);
   const [isLoading, setLoading] = useState(true);
+  const [loadingAction, setLoadingAction] = useState(false);
 
   const StyledPressable = styled(Pressable);
 
@@ -102,6 +103,31 @@ export default function App() {
     router.push(`manager/${contentID}`);
   };
 
+  /**
+   * testContent
+   * @param contentID content string ID
+   * @param index content index
+   */
+  const testContent = (contentID: string, index: number) => {
+    setLoadingAction(true);
+    console.log("testContent", "Test content pressed!", contentID, index);
+    let testContent = {
+      question: content[index].question,
+      answer: content[index].answer,
+    };
+    console.log("testContent", testContent);
+
+    post(TEST_CONTENT, testContent, session?.token)
+      .then((response) => {
+        console.log("testContent", response);
+        setLoadingAction(false);
+      })
+      .catch((error) => {
+        console.log("testContent", error.error);
+        setLoadingAction(false);
+      });
+  };
+
   if (isLoading)
     return (
       <Screen>
@@ -115,12 +141,24 @@ export default function App() {
         data={content}
         keyExtractor={(item) => item._id}
         renderItem={({ item, index }) => (
-          <View className="flex flex-row justify-between items-center py-5">
+          <View
+            className={`flex flex-row justify-between items-center py-5 ${
+              loadingAction ? "opacity-50" : "opacity-100"
+            }`}
+          >
             <View className="flex-1 min-w-0 gap-x-4">
-              <Text className="text-sm font-semibold leading-6 text-gray-900">
+              <Text
+                className={`text-sm font-semibold leading-6 ${
+                  loadingAction ? "text-gray-400" : "text-gray-900"
+                }`}
+              >
                 {item.question}
               </Text>
-              <Text className="mt-1 truncate text-xs leading-5 text-gray-500">
+              <Text
+                className={`mt-1 truncate text-xs leading-5 ${
+                  loadingAction ? "text-gray-300" : "text-gray-500"
+                }`}
+              >
                 {item.answer.slice(0, 100)}...
               </Text>
             </View>
@@ -130,6 +168,7 @@ export default function App() {
                 onPress={() => {
                   deleteContent(item._id, index);
                 }}
+                disabled={loadingAction}
                 className="p-3 mr-1 mb-1 rounded-lg bg-danger active:opacity-70"
               >
                 <TrashIcon className="text-center" size={15} color={"white"} />
@@ -139,6 +178,7 @@ export default function App() {
                 onPress={() => {
                   editContent(item._id);
                 }}
+                disabled={loadingAction}
                 className="p-3 mr-1 mb-1 rounded-lg bg-warning active:opacity-70"
               >
                 <Pen className="text-center" size={15} color={"white"} />
@@ -146,8 +186,19 @@ export default function App() {
 
               <StyledPressable
                 onPress={() => {
+                  testContent(item._id, index);
+                }}
+                disabled={loadingAction}
+                className="p-3 mr-1 mb-1 rounded-lg bg-info active:opacity-70"
+              >
+                <PlayIcon className="text-center" size={15} color={"white"} />
+              </StyledPressable>
+
+              <StyledPressable
+                onPress={() => {
                   openContent(item._id);
                 }}
+                disabled={loadingAction}
                 className="p-3 mb-1 rounded-lg bg-primary active:opacity-70"
               >
                 <Eye className="text-center" size={15} color={"white"} />
