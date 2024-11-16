@@ -33,9 +33,6 @@ export default function App() {
       updated_at: string;
     }[]
   >([]);
-  const [isLoading, setLoading] = useState(true);
-  const [loadingAction, setLoadingAction] = useState(false);
-  const [isModalVisible, setModalVisible] = useState(false);
   const [testedContent, setTestedContent] = useState<{
     _id: string;
     question: string;
@@ -45,6 +42,17 @@ export default function App() {
     created_at: string;
     updated_at: string;
   }>();
+  const [pendingDelete, setPendingDelete] = useState<{
+    contendID: string;
+    index: number;
+  }>({
+    contendID: "",
+    index: 0,
+  });
+  const [isLoading, setLoading] = useState(true);
+  const [loadingAction, setLoadingAction] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
   const [serverAnswer, setServerAnswer] = useState("");
 
   const StyledPressable = styled(Pressable);
@@ -94,20 +102,35 @@ export default function App() {
   };
 
   /**
+   * toggleDeleteModal
+   * @param contentID content string ID
+   * @param index index
+   */
+  const openDeleteModal = (content: any, index: number) => {
+    setPendingDelete({
+      contendID: content._id,
+      index: index,
+    });
+    setDeleteModal(true);
+  };
+
+  /**
    * deleteContent
    * @param contentID content string ID
+   * @param index index
    */
   const deleteContent = (contentID: string, index: number) => {
     console.log("deleteContent", "Delete content pressed!", contentID, index);
     del(`${GET_CONTENT}${contentID}`, session?.token)
-      .then((chatDetails) => {
-        console.log("sendMessage:", chatDetails);
+      .then(() => {
+        toast.success("Se ha eliminado el contenido");
         setContent((prevContent) => prevContent.filter((_, i) => i !== index));
       })
       .catch((error) => {
         console.log(error);
         toast.error("Ha ocurrido un error eliminando el contenido");
       });
+    setDeleteModal(false);
   };
 
   /**
@@ -192,6 +215,19 @@ export default function App() {
         />
       </Modal>
 
+      <Modal isVisible={deleteModal}>
+        <ModalBody
+          title="Alerta"
+          body={`¿De verdad quieres eliminar el contenido: "${content[pendingDelete?.index].question}"?`}
+          successText="Cancelar"
+          cancelText="Eliminar"
+          successAction={() => setDeleteModal(false)}
+          cancelAction={() =>
+            deleteContent(pendingDelete?.contendID, pendingDelete?.index)
+          }
+        />
+      </Modal>
+
       <FlatList
         data={content}
         keyExtractor={(item) => item._id}
@@ -221,7 +257,7 @@ export default function App() {
             <View className="flex-shrink-0 flex sm:flex-row sm:items-end pl-1">
               <StyledPressable
                 onPress={() => {
-                  deleteContent(item._id, index);
+                  openDeleteModal(item, index);
                 }}
                 disabled={loadingAction}
                 className="p-3 mr-1 mb-1 rounded-lg bg-danger active:opacity-70"
