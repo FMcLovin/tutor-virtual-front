@@ -14,6 +14,7 @@ import { get, put } from "../../../services";
 import { GET_CONTENT, GET_USER } from "@env";
 import { useLocalSearchParams } from "expo-router";
 import { CancelIcon, Pen, CheckIcon } from "../../../components/icons/Icons";
+import { toast } from "react-toastify";
 
 export default function App() {
   const { session } = useSession();
@@ -56,6 +57,7 @@ export default function App() {
 
       setLoading(false);
     } catch (error) {
+      toast.error("Ha ocurrido un error, vuelve a intentarlo");
       console.log("fetchContent", error);
       setLoading(false);
     }
@@ -88,10 +90,11 @@ export default function App() {
         setContent(contentDetails);
         setEditingContent(contentDetails);
         setEditing(false);
-        alert("Contenido editado");
+        toast.success("Contenido editado");
       })
       .catch((error) => {
         console.log(error);
+        toast.error("Ha ocurrido un error, vuelve a intentarlo");
       });
   };
 

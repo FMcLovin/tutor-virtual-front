@@ -64,7 +64,7 @@ export default function App() {
         console.log("fetchChatDetails:", chatDetails);
 
         // Extrae los mensajes del chat y actualiza el estado
-        const chatMessages = chatDetails?.conversation?.messages || [];
+        const chatMessages = chatDetails || [];
 
         // Actualiza los mensajes con la nueva función
         initChatMessages(chatMessages);
@@ -95,7 +95,7 @@ export default function App() {
       .then((newChat) => {
         console.log("createChat: ", newChat);
         setChatID(newChat._id);
-        const chatMessages = newChat?.conversation?.messages || [];
+        const chatMessages = newChat || [];
         initChatMessages(chatMessages);
         setMessages((prevMessages) => [
           ...prevMessages,
@@ -143,8 +143,6 @@ export default function App() {
     put(`${GET_CHAT}${chatID}`, { content: inputText }, session?.token)
       .then((chatDetails) => {
         console.log("sendMessage:", chatDetails);
-
-        // Extrae los mensajes del chat y actualiza el estado
         //const chatMessages = chatDetails?.conversation?.messages || [];
         const chatMessages = {
           content: "Aquí va la respuesta de la IA",

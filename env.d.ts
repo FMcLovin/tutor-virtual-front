@@ -7,4 +7,5 @@ declare module "@env" {
   export const GET_CHAT: string;
   export const GET_CONTENT: string;
   export const CREATE_CONTENT: string;
+  export const TEST_CONTENT: string;
 }

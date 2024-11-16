@@ -9,11 +9,15 @@ import {
   FlatList,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Screen } from "../../../components/Screen";
-import { get, del } from "../../../services";
-import { GET_CONTENT } from "@env";
+import { get, del, post } from "../../../services";
+import { GET_CONTENT, TEST_CONTENT } from "@env";
 
-import { Eye, TrashIcon, Pen } from "../../../components/icons/Icons";
+import { Screen } from "../../../components/Screen";
+import { Eye, TrashIcon, Pen, PlayIcon } from "../../../components/icons/Icons";
+import ModalBody from "../../../components/ui/ModalBody";
+
+import { toast } from "react-toastify";
+import Modal from "react-native-modal";
 
 export default function App() {
   const { session } = useSession();
@@ -29,7 +33,27 @@ export default function App() {
       updated_at: string;
     }[]
   >([]);
+  const [testedContent, setTestedContent] = useState<{
+    _id: string;
+    question: string;
+    answer: string;
+    created_by: string;
+    category: string;
+    created_at: string;
+    updated_at: string;
+  }>();
+  const [pendingDelete, setPendingDelete] = useState<{
+    contendID: string;
+    index: number;
+  }>({
+    contendID: "",
+    index: 0,
+  });
   const [isLoading, setLoading] = useState(true);
+  const [loadingAction, setLoadingAction] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [serverAnswer, setServerAnswer] = useState("");
 
   const StyledPressable = styled(Pressable);
 
@@ -54,6 +78,7 @@ export default function App() {
       })
       .catch((error) => {
         console.log("fetchContent", error.error);
+        toast.error("Ha ocurrido un error obteniendo el contenido");
         setLoading(false);
       });
   };
@@ -77,20 +102,35 @@ export default function App() {
   };
 
   /**
+   * toggleDeleteModal
+   * @param contentID content string ID
+   * @param index index
+   */
+  const openDeleteModal = (content: any, index: number) => {
+    setPendingDelete({
+      contendID: content._id,
+      index: index,
+    });
+    setDeleteModal(true);
+  };
+
+  /**
    * deleteContent
    * @param contentID content string ID
+   * @param index index
    */
   const deleteContent = (contentID: string, index: number) => {
     console.log("deleteContent", "Delete content pressed!", contentID, index);
     del(`${GET_CONTENT}${contentID}`, session?.token)
-      .then((chatDetails) => {
-        console.log("sendMessage:", chatDetails);
+      .then(() => {
+        toast.success("Se ha eliminado el contenido");
         setContent((prevContent) => prevContent.filter((_, i) => i !== index));
       })
       .catch((error) => {
         console.log(error);
-        alert("Ha ocurrido un error eliminando el contenido");
+        toast.error("Ha ocurrido un error eliminando el contenido");
       });
+    setDeleteModal(false);
   };
 
   /**
@@ -102,6 +142,59 @@ export default function App() {
     router.push(`manager/${contentID}`);
   };
 
+  /**
+   * testContent
+   * @param contentID content string ID
+   * @param index content index
+   */
+  const testContent = (contentID: string, index: number) => {
+    setLoadingAction(true);
+    setTestedContent(content[index]);
+    console.log("testContent", "Test content pressed!", testedContent);
+    let testContent = {
+      question: content[index].question,
+      answer: content[index].answer,
+    };
+    console.log("testContent", testContent);
+
+    post(TEST_CONTENT, testContent, session?.token)
+      .then((response) => {
+        console.log("testContent", response);
+        setServerAnswer(response.message);
+        setLoadingAction(false);
+        toggleModal();
+      })
+      .catch((error) => {
+        console.log("testContent", error.error);
+        setLoadingAction(false);
+        toast.error("Ha ocurrido un error, vuelve a intentarlo");
+      });
+  };
+
+  /**
+   * toggleModal
+   */
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  /**
+   * wrongAnswer
+   */
+  const wrongAnswer = () => {
+    if (testedContent != null) {
+      toggleModal();
+      editContent(testedContent?._id);
+    } else toast.error("Ha ocurrido un error, vuelve a intentarlo");
+  };
+
+  /**
+   * correctAnswer
+   */
+  const correctAnswer = () => {
+    toggleModal();
+  };
+
   if (isLoading)
     return (
       <Screen>
@@ -111,16 +204,52 @@ export default function App() {
 
   return (
     <Screen>
+      <Modal isVisible={isModalVisible}>
+        <ModalBody
+          title="Respuesta de la IA"
+          body={`La pregunta fue: ${testedContent?.answer}, y la respuesta es: ${serverAnswer}`}
+          successText="Correcto"
+          cancelText="Corregir"
+          successAction={correctAnswer}
+          cancelAction={wrongAnswer}
+        />
+      </Modal>
+
+      <Modal isVisible={deleteModal}>
+        <ModalBody
+          title="Alerta"
+          body={`¿De verdad quieres eliminar el contenido: "${content[pendingDelete?.index].question}"?`}
+          successText="Cancelar"
+          cancelText="Eliminar"
+          successAction={() => setDeleteModal(false)}
+          cancelAction={() =>
+            deleteContent(pendingDelete?.contendID, pendingDelete?.index)
+          }
+        />
+      </Modal>
+
       <FlatList
         data={content}
         keyExtractor={(item) => item._id}
         renderItem={({ item, index }) => (
-          <View className="flex flex-row justify-between items-center py-5">
+          <View
+            className={`flex flex-row justify-between items-center py-5 ${
+              loadingAction ? "opacity-50" : "opacity-100"
+            }`}
+          >
             <View className="flex-1 min-w-0 gap-x-4">
-              <Text className="text-sm font-semibold leading-6 text-gray-900">
+              <Text
+                className={`text-sm font-semibold leading-6 ${
+                  loadingAction ? "text-gray-400" : "text-gray-900"
+                }`}
+              >
                 {item.question}
               </Text>
-              <Text className="mt-1 truncate text-xs leading-5 text-gray-500">
+              <Text
+                className={`mt-1 truncate text-xs leading-5 ${
+                  loadingAction ? "text-gray-300" : "text-gray-500"
+                }`}
+              >
                 {item.answer.slice(0, 100)}...
               </Text>
             </View>
@@ -128,8 +257,9 @@ export default function App() {
             <View className="flex-shrink-0 flex sm:flex-row sm:items-end pl-1">
               <StyledPressable
                 onPress={() => {
-                  deleteContent(item._id, index);
+                  openDeleteModal(item, index);
                 }}
+                disabled={loadingAction}
                 className="p-3 mr-1 mb-1 rounded-lg bg-danger active:opacity-70"
               >
                 <TrashIcon className="text-center" size={15} color={"white"} />
@@ -139,6 +269,7 @@ export default function App() {
                 onPress={() => {
                   editContent(item._id);
                 }}
+                disabled={loadingAction}
                 className="p-3 mr-1 mb-1 rounded-lg bg-warning active:opacity-70"
               >
                 <Pen className="text-center" size={15} color={"white"} />
@@ -146,8 +277,19 @@ export default function App() {
 
               <StyledPressable
                 onPress={() => {
+                  testContent(item._id, index);
+                }}
+                disabled={loadingAction}
+                className="p-3 mr-1 mb-1 rounded-lg bg-info active:opacity-70"
+              >
+                <PlayIcon className="text-center" size={15} color={"white"} />
+              </StyledPressable>
+
+              <StyledPressable
+                onPress={() => {
                   openContent(item._id);
                 }}
+                disabled={loadingAction}
                 className="p-3 mb-1 rounded-lg bg-primary active:opacity-70"
               >
                 <Eye className="text-center" size={15} color={"white"} />
