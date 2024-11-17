@@ -8,4 +8,5 @@ declare module "@env" {
   export const GET_CONTENT: string;
   export const CREATE_CONTENT: string;
   export const TEST_CONTENT: string;
+  export const SUPPORT_ROUTE: string;
 }

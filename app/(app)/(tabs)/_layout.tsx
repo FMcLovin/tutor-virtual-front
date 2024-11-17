@@ -11,7 +11,8 @@ import { styled } from "nativewind";
 const StyledPressable = styled(Pressable);
 
 export default function TabLayout() {
-  const { signOut } = useSession();
+  const { session, signOut } = useSession();
+  const userRole = session?.user.role_id;
 
   return (
     <Tabs
@@ -36,19 +37,31 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <ChatIcon size={28} color={color} />,
         }}
       />
+
       <Tabs.Screen
         name="manager"
         options={{
           title: "Contenido",
           tabBarIcon: ({ color }) => <ClipBoard size={28} color={color} />,
+          href: userRole === "admin_role" ? "manager" : null,
         }}
       />
 
       <Tabs.Screen
-        name="about"
+        name="help"
         options={{
-          title: "Settings",
+          title: "Soporte y ayuda",
           tabBarIcon: ({ color }) => <AboutIcon size={28} color={color} />,
+          href: userRole === "student_role" ? "help" : null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="support"
+        options={{
+          title: "Soporte y ayuda",
+          tabBarIcon: ({ color }) => <AboutIcon size={28} color={color} />,
+          href: userRole === "admin_role" ? "support" : null,
         }}
       />
     </Tabs>

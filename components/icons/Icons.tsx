@@ -112,3 +112,15 @@ export const CheckIcon = ({
   size?: number;
   [key: string]: any;
 }) => <FontAwesome6 name="check" size={size} color={color} {...props} />;
+
+export const RefreshIcon = ({
+  color = "black",
+  size = 25,
+  ...props
+}: {
+  color?: string;
+  size?: number;
+  [key: string]: any;
+}) => (
+  <FontAwesome6 name="arrows-rotate" size={size} color={color} {...props} />
+);
