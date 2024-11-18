@@ -69,7 +69,7 @@ export default function App() {
     if (session?.user.role_id === "admin_role") {
       fetchContent();
     } else {
-      router.push(`/notfound`);
+      router.push(`/`);
     }
   };
 

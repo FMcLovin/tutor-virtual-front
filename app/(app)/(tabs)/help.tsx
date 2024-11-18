@@ -201,7 +201,12 @@ export default function App() {
             </View>
 
             <View className="flex-shrink-0 flex sm:flex-row sm:items-end pl-1">
-              <Text>{new Date(item.created_at).toLocaleString()}</Text>
+              <Text>
+                {new Date(item.created_at).toLocaleString("es-MX", {
+                  dateStyle: "short",
+                  timeStyle: "short",
+                })}
+              </Text>
             </View>
           </View>
         )}

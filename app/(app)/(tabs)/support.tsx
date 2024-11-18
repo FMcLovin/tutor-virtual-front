@@ -7,6 +7,7 @@ import {
   FlatList,
   StyleSheet,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { get, put } from "../../../services";
 import { SUPPORT_ROUTE } from "@env";
 import { useSession } from "../../ctx";
@@ -20,6 +21,8 @@ import BadgeComponent from "../../../components/ui/Badge";
 import { Screen } from "../../../components/Screen";
 
 export default function App() {
+  const { session } = useSession();
+  const router = useRouter();
   type Color = "green" | "red" | "yellow";
   const green: Color = "green";
   const red: Color = "red";
@@ -31,11 +34,10 @@ export default function App() {
   };
   const statusBadge: Record<string, string> = {
     open: "Abierto",
-    in_progress: "En revisión",
+    in_progress: "En progreso",
     closed: "Cerrado",
   };
   const StyledPressable = styled(Pressable);
-  const { session } = useSession();
   const [tickets, setTickets] = useState<
     {
       _id: string;
@@ -53,8 +55,20 @@ export default function App() {
   const [status, setStatus] = useState("open");
 
   useEffect(() => {
-    fetchTickets();
+    checkUserRole();
   }, []);
+
+  /**
+   * checkUserRole
+   */
+  const checkUserRole = () => {
+    console.log(session?.user.role_id);
+    if (session?.user.role_id === "admin_role") {
+      fetchTickets();
+    } else {
+      router.push(`/`);
+    }
+  };
 
   /**
    * fetchTickets
@@ -89,16 +103,17 @@ export default function App() {
       { status: status },
       session?.token,
     )
-      .then((contentDetails) => {
-        console.log("changeStatus:", contentDetails);
+      .then(() => {
         setLoadingAction(false);
         tickets[selectedTicket].status = status;
         toast.success("Ticket actualizado");
+        closeModal();
       })
       .catch((error) => {
         console.log("changeStatus", error);
         setLoadingAction(false);
         toast.error("Ha ocurrido un error, vuelve a intentarlo");
+        closeModal();
       });
   };
 
