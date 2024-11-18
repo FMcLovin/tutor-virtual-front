@@ -58,8 +58,20 @@ export default function App() {
   const StyledPressable = styled(Pressable);
 
   useEffect(() => {
-    fetchContent();
+    checkUserRole();
   }, []);
+
+  /**
+   * checkUserRole
+   */
+  const checkUserRole = () => {
+    console.log(session?.user.role_id);
+    if (session?.user.role_id === "admin_role") {
+      fetchContent();
+    } else {
+      router.push(`/`);
+    }
+  };
 
   /**
    * fetchContent
