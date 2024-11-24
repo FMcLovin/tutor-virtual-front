@@ -1,35 +1,33 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TextInput,
-  Pressable,
-  Alert,
-} from "react-native";
+import { View, Text, ScrollView, TextInput, Pressable } from "react-native";
 import { Screen } from "../../../components/Screen";
 import { useSession } from "../../ctx";
 import { styled } from "nativewind";
 import { get, post, put } from "../../../services";
 import { GET_CHAT_BY_USER_ID, CREATE_CHAT, GET_CHAT } from "@env";
+import { toast } from "react-toastify";
 
 export default function App() {
   const { session } = useSession();
   const [messages, setMessages] = useState<
-    { content: string; sender: string; timestamp: string }[]
+    { _id: string; content: string; sender: string; timestamp: string }[]
   >([]);
   const [inputText, setInputText] = useState("");
   const StyledPressable = styled(Pressable);
   const [chatID, setChatID] = useState("");
   const scrollViewRef = useRef<ScrollView>(null);
+  const [isSendingMessage, setSendingMessage] = useState(false);
+  const [mustMoveScroll, setMoveScroll] = useState(true);
 
   useEffect(() => {
     fetchChatByUserId();
   }, []);
 
   useEffect(() => {
-    scrollViewRef.current?.scrollToEnd({ animated: true });
-  }, [messages]);
+    if (mustMoveScroll) {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }
+  }, [messages, mustMoveScroll]);
 
   /**
    * fetchChatByUserId
@@ -41,13 +39,11 @@ export default function App() {
       session?.token,
     )
       .then((response) => {
-        console.log("index.tsx: fetchChatByUserId", response);
         setChatID(response.chat_id);
         fetchChatDetails(response.chat_id);
       })
       .catch((error) => {
         if (error.error === "Chat not found") {
-          console.log(error.error);
           createChat();
         }
       });
@@ -58,27 +54,23 @@ export default function App() {
    * @param chatId chat's id
    * @returns Promise containing chat data
    */
-  const fetchChatDetails = async (chatId: string) => {
-    return await get(`${GET_CHAT}${chatId}`, session?.token)
+  const fetchChatDetails = async (chatId: string, messageId?: string) => {
+    const url = messageId
+      ? `${GET_CHAT}${chatId}/messages/${messageId}`
+      : `${GET_CHAT}${chatId}`;
+    return await get(url, session?.token)
       .then((chatDetails) => {
-        console.log("fetchChatDetails:", chatDetails);
-
-        // Extrae los mensajes del chat y actualiza el estado
         const chatMessages = chatDetails || [];
-
-        // Actualiza los mensajes con la nueva función
-        initChatMessages(chatMessages);
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            content: `Hola ${session?.user.username}, ¿cómo puedo ayudarte hoy?`,
-            sender: "bot",
-            timestamp: new Date().toString(),
-          },
-        ]);
+        if (messageId) {
+          prependChatMessages(chatMessages); // Agrega los mensajes al inicio
+          setMoveScroll(false);
+        } else {
+          initChatMessages(chatMessages); // Inicializa los mensajes
+          setMoveScroll(true);
+        }
       })
       .catch((error) => {
-        console.log(error);
+        toast.error("Ha ocurrido un error obteniendo los mensajes");
       });
   };
 
@@ -89,22 +81,13 @@ export default function App() {
   const createChat = async () => {
     return await post(
       CREATE_CHAT,
-      { userId: session?.user.userid },
+      { user_id: session?.user._id },
       session?.token,
     )
       .then((newChat) => {
-        console.log("createChat: ", newChat);
         setChatID(newChat._id);
         const chatMessages = newChat || [];
         initChatMessages(chatMessages);
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            content: `Hola ${session?.user.username}, ¿cómo puedo ayudarte hoy?`,
-            sender: "bot",
-            timestamp: new Date().toString(),
-          },
-        ]);
       })
       .catch((error) => {
         throw new Error("Error al crear un nuevo chat.");
@@ -117,11 +100,17 @@ export default function App() {
    * @param chatMessages los mensajes que se desean añadir
    */
   const initChatMessages = (
-    chatMessages: { content: string; sender: string; timestamp: string }[],
+    chatMessages: {
+      _id: string;
+      content: string;
+      sender: string;
+      timestamp: string;
+    }[],
   ) => {
-    console.log("initChatMessages: ", chatMessages);
     if (chatMessages.length > 0) {
       setMessages((prevMessages) => [...prevMessages, ...chatMessages]);
+    } else {
+      setMessages(chatMessages);
     }
   };
 
@@ -130,30 +119,19 @@ export default function App() {
    * Envía un mensaje a la API y actualiza los mensajes
    */
   const sendMessage = () => {
-    if (inputText.trim() === "") return;
-
-    const userMessage = {
-      content: inputText,
-      sender: "user",
-      timestamp: new Date().toString(),
-    };
-    setMessages([...messages, userMessage]);
+    setSendingMessage(true);
     setInputText("");
-
+    if (inputText.trim() === "") return;
     put(`${GET_CHAT}${chatID}`, { content: inputText }, session?.token)
       .then((chatDetails) => {
-        console.log("sendMessage:", chatDetails);
-        //const chatMessages = chatDetails?.conversation?.messages || [];
-        const chatMessages = {
-          content: "Aquí va la respuesta de la IA",
-          sender: "ia",
-          timestamp: new Date().toString(),
-        };
-        // Actualiza los mensajes con la nueva función
-        updateChatMessages(chatMessages);
+        setMoveScroll(true);
+        updateChatMessages(chatDetails.message);
+        updateChatMessages(chatDetails.iaResponse);
+        setSendingMessage(false);
       })
       .catch((error) => {
-        console.log(error);
+        toast.error("Ha ocurrido un error envíando el mensaje");
+        setSendingMessage(false);
       });
   };
 
@@ -163,12 +141,42 @@ export default function App() {
    * @param chatMessages los mensajes que se desean añadir
    */
   const updateChatMessages = (chatMessage: {
+    _id: string;
     content: string;
     sender: string;
     timestamp: string;
   }) => {
-    console.log("updateChatMessages: ", chatMessage);
     setMessages((prevMessages) => [...prevMessages, chatMessage]);
+  };
+
+  /**
+   * prependChatMessages
+   * Añade mensajes al inicio del estado actual
+   * @param newMessages nuevos mensajes a añadir
+   */
+  const prependChatMessages = (
+    newMessages: {
+      _id: string;
+      content: string;
+      sender: string;
+      timestamp: string;
+    }[],
+  ) => {
+    setMessages((prevMessages) => [...newMessages, ...prevMessages]);
+  };
+
+  /**
+   * handleScroll
+   * @param param0 nativeEvent
+   */
+  const handleScroll = ({ nativeEvent }: any) => {
+    if (nativeEvent.contentOffset.y <= 0) {
+      // Obtener el ID del mensaje más antiguo
+      const oldestMessageId = messages[0]?._id;
+      if (oldestMessageId) {
+        fetchChatDetails(chatID, oldestMessageId);
+      }
+    }
   };
 
   return (
@@ -177,9 +185,8 @@ export default function App() {
       <ScrollView
         ref={scrollViewRef}
         className="flex-1"
-        onContentSizeChange={() =>
-          scrollViewRef.current?.scrollToEnd({ animated: true })
-        }
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       >
         {messages.map((message, index) => (
           <View
@@ -217,6 +224,7 @@ export default function App() {
         <StyledPressable
           onPress={sendMessage}
           className="p-3 rounded-lg bg-primary active:opacity-70"
+          disabled={isSendingMessage}
         >
           <Text className="text-white text-center font-bold">Enviar</Text>
         </StyledPressable>
