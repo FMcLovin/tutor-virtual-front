@@ -70,7 +70,6 @@ export default function LoginScreen() {
       return;
     }
 
-    //Alert.alert("Login exitoso");
     signIn(email, password);
   };
 

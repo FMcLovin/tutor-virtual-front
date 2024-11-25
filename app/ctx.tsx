@@ -4,6 +4,7 @@ import { useStorageState } from "./useStorageState";
 import { useRouter } from "expo-router";
 import { post } from "../services/httpService";
 import { AUTH_LOGIN } from "@env";
+import { toast } from "react-toastify";
 
 const AuthContext = React.createContext<{
   signIn: (email: string, password: string) => void;
@@ -47,7 +48,7 @@ export function SessionProvider(props: React.PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState<{
     token: string;
     user: any;
-  }>("session"); // Cambia el tipo según tu estructura
+  }>("session");
 
   return (
     <AuthContext.Provider
@@ -55,16 +56,15 @@ export function SessionProvider(props: React.PropsWithChildren) {
         signIn: (email: string, password: string) => {
           login(email, password)
             .then((sessionData) => {
-              console.log(sessionData);
-              setSession(sessionData); // Guardar todo el objeto { token, user }
+              setSession(sessionData);
               router.push("/");
             })
             .catch((error) => {
-              console.log(error);
+              toast.error(error.error);
             });
         },
         signOut: () => {
-          setSession(null); // Limpiar la sesión
+          setSession(null);
         },
         session,
         isLoading,
