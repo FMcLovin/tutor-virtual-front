@@ -6,6 +6,7 @@ import {
   View,
   FlatList,
   StyleSheet,
+  TextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { get, put } from "../../../services";
@@ -44,11 +45,13 @@ export default function App() {
       user_id: string;
       issue: string;
       status: string;
+      feedback: string;
       created_at: string;
       updated_at: string;
     }[]
   >([]);
   const [selectedTicket, setSelectedTicket] = useState(-1);
+  const [feedback, setFeedback] = useState("");
   const [isLoading, setLoading] = useState(true);
   const [isLoadingAction, setLoadingAction] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
@@ -96,16 +99,17 @@ export default function App() {
    * changeStatus
    */
   const changeStatus = () => {
-    console.log(tickets[selectedTicket]);
+    const ticketID = tickets[selectedTicket]._id;
+    let ticketData = {
+      status: status,
+      feedback: feedback,
+    };
     setLoadingAction(true);
-    put(
-      `${SUPPORT_ROUTE}/${tickets[selectedTicket]._id}`,
-      { status: status },
-      session?.token,
-    )
+    put(`${SUPPORT_ROUTE}/${ticketID}`, ticketData, session?.token)
       .then(() => {
         setLoadingAction(false);
         tickets[selectedTicket].status = status;
+        tickets[selectedTicket].feedback = feedback;
         toast.success("Ticket actualizado");
         closeModal();
       })
@@ -124,6 +128,7 @@ export default function App() {
     console.log("openModal", item, index);
     setSelectedTicket(index);
     setStatus(item.status);
+    setFeedback(item.feedback);
     setModalVisible(true);
   };
 
@@ -131,6 +136,7 @@ export default function App() {
    * cancelAction
    */
   const closeModal = () => {
+    setFeedback("");
     setModalVisible(false);
   };
 
@@ -171,6 +177,19 @@ export default function App() {
               <Text className="text-sm text-gray-600">
                 {selectedTicket > -1 && tickets[selectedTicket].issue}
               </Text>
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-md text-black">Retroalimentación:</Text>
+              <TextInput
+                className="border border-gray-300 rounded-lg p-2 mt-2"
+                placeholder="Sigue los siguientes pasos para..."
+                multiline
+                numberOfLines={4}
+                maxLength={300}
+                value={feedback}
+                onChangeText={setFeedback}
+              />
             </View>
 
             <View className="mb-4">
