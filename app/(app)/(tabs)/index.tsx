@@ -39,8 +39,8 @@ export default function App() {
       session?.token,
     )
       .then((response) => {
-        setChatID(response.chat_id);
-        fetchChatDetails(response.chat_id);
+        setChatID(response[0].chat_id);
+        fetchChatDetails(response[0].chat_id);
       })
       .catch((error) => {
         if (error.error === "Chat not found") {
