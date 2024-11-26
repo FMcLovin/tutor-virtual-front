@@ -26,6 +26,7 @@ export default function App() {
       user_id: string;
       issue: string;
       status: string;
+      feedback: string;
       created_at: string;
       updated_at: string;
     }[]
@@ -198,6 +199,8 @@ export default function App() {
               >
                 {getStatusBadge(item.status)}
               </Text>
+
+              <Text className="text-xs text-gray-500">{item.feedback}</Text>
             </View>
 
             <View className="flex-shrink-0 flex sm:flex-row sm:items-end pl-1">
