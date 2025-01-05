@@ -43,7 +43,7 @@ export default function App() {
         fetchChatDetails(response[0].chat_id);
       })
       .catch((error) => {
-        if (error.error === "Chat not found") {
+        if (error.error === "Chats not found") {
           createChat();
         }
       });
@@ -180,7 +180,7 @@ export default function App() {
   };
 
   return (
-    <Screen>
+    <View className="flex-1 px-6 bg-background">
       {/* Contenedor del chat */}
       <ScrollView
         ref={scrollViewRef}
@@ -212,9 +212,15 @@ export default function App() {
           </View>
         ))}
       </ScrollView>
-
+      {isSendingMessage && (
+        <View className="w-3/4 self-center fixed">
+          <View className="p-3 rounded-lg my-2 w-auto max-w-fit bg-blue-200 self-center">
+            <Text className="text-base">Tu tutorUV está escribiendo...</Text>
+          </View>
+        </View>
+      )}
       {/* Input para escribir el mensaje */}
-      <View className="flex-row pt-3 border-t border-gray-300">
+      <View className="flex-row py-3 border-t border-gray-300">
         <TextInput
           className="flex-1 p-3 border border-gray-400 rounded-lg mr-2"
           placeholder="Escribe tu mensaje..."
@@ -229,6 +235,6 @@ export default function App() {
           <Text className="text-white text-center font-bold">Enviar</Text>
         </StyledPressable>
       </View>
-    </Screen>
+    </View>
   );
 }
