@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, ScrollView, TextInput, Pressable } from "react-native";
-import { Screen } from "../../../components/Screen";
-import { useSession } from "../../ctx";
+import { useSession } from "../../../auth/ctx";
 import { styled } from "nativewind";
 import { get, post, put } from "../../../services";
 import { GET_CHAT_BY_USER_ID, CREATE_CHAT, GET_CHAT } from "@env";
 import { toast } from "react-toastify";
 
-export default function App() {
+export default function Chat() {
   const { session } = useSession();
   const [messages, setMessages] = useState<
     { _id: string; content: string; sender: string; timestamp: string }[]
@@ -130,7 +129,7 @@ export default function App() {
         setSendingMessage(false);
       })
       .catch((error) => {
-        toast.error("Ha ocurrido un error envíando el mensaje");
+        toast.error("Ha ocurrido un error enviando el mensaje");
         setSendingMessage(false);
       });
   };
@@ -222,6 +221,7 @@ export default function App() {
       {/* Input para escribir el mensaje */}
       <View className="flex-row py-3 border-t border-gray-300">
         <TextInput
+          testID="message-data"
           className="flex-1 p-3 border border-gray-400 rounded-lg mr-2"
           placeholder="Escribe tu mensaje..."
           value={inputText}
@@ -232,7 +232,12 @@ export default function App() {
           className="p-3 rounded-lg bg-primary active:opacity-70"
           disabled={isSendingMessage}
         >
-          <Text className="text-white text-center font-bold">Enviar</Text>
+          <Text
+            testID="button-send"
+            className="text-white text-center font-bold"
+          >
+            Enviar
+          </Text>
         </StyledPressable>
       </View>
     </View>

@@ -11,7 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import { get, put } from "../../../services";
 import { SUPPORT_ROUTE } from "@env";
-import { useSession } from "../../ctx";
+import { useSession } from "../../../auth/ctx";
 import { toast } from "react-toastify";
 import Modal from "react-native-modal";
 

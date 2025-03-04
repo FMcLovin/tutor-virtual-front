@@ -4,7 +4,7 @@ import {
   AboutIcon,
   ClipBoard,
 } from "../../../components/icons/Icons";
-import { useSession } from "../../ctx";
+import { useSession } from "../../../auth/ctx";
 import { Pressable, Text } from "react-native";
 import { styled } from "nativewind";
 

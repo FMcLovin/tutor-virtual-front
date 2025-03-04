@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSession } from "../../ctx";
+import { useSession } from "../../../auth/ctx";
 import { styled } from "nativewind";
 import {
   Text,

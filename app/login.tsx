@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { styled } from "nativewind";
 
-import { useSession } from "./ctx";
+import { useSession } from "../auth/ctx";
 import { Redirect } from "expo-router";
 import { KeyboardAvoidingView, ScrollView } from "react-native";
 

@@ -11,7 +11,7 @@ import { styled } from "nativewind";
 import { Screen } from "../../../components/Screen";
 import { get, post } from "../../../services";
 import { SUPPORT_ROUTE } from "@env";
-import { useSession } from "../../ctx";
+import { useSession } from "../../../auth/ctx";
 import { RefreshIcon } from "../../../components/icons/Icons";
 
 import { toast } from "react-toastify";
