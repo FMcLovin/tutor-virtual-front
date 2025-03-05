@@ -21,7 +21,7 @@ import { RefreshIcon } from "../../../components/icons/Icons";
 import BadgeComponent from "../../../components/ui/Badge";
 import { Screen } from "../../../components/Screen";
 
-export default function App() {
+export default function Support() {
   const { session } = useSession();
   const router = useRouter();
   type Color = "green" | "red" | "yellow";

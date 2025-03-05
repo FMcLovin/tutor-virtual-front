@@ -5,6 +5,19 @@ module.exports = function (api) {
     plugins: [
       "nativewind/babel",
       [
+        "module-resolver",
+        {
+          extensions: [
+            ".ios.js",
+            ".android.js",
+            ".native.js",
+            ".js",
+            ".ts",
+            ".tsx",
+          ],
+        },
+      ],
+      [
         "module:react-native-dotenv",
         {
           moduleName: "@env",

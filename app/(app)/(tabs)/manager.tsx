@@ -19,7 +19,7 @@ import ModalBody from "../../../components/ui/ModalBody";
 import { toast } from "react-toastify";
 import Modal from "react-native-modal";
 
-export default function App() {
+export default function Manager() {
   const { session } = useSession();
   const router = useRouter();
   const [content, setContent] = useState<

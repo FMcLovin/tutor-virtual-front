@@ -17,7 +17,7 @@ import { RefreshIcon } from "../../../components/icons/Icons";
 import { toast } from "react-toastify";
 import Modal from "react-native-modal";
 
-export default function App() {
+export default function Help() {
   const StyledPressable = styled(Pressable);
   const { session } = useSession();
   const [tickets, setTickets] = useState<
@@ -67,7 +67,7 @@ export default function App() {
       })
       .catch((error) => {
         console.log("fetchUserTickets", error.error);
-        toast.error("Ha ocurrido un error obteniendo tus tickets");
+        toast.error("Ha ocurrido un error obteniendo tus reportes");
         setLoading(false);
       });
   };
@@ -139,7 +139,7 @@ export default function App() {
           <View className="bg-white rounded-lg max-w-lg w-full p-6 shadow-lg z-50">
             <View className="flex flex-row justify-between items-center mb-4">
               <Text className="text-xl font-semibold text-gray-800">
-                Crear nuevo ticket
+                Crear nuevo reporte
               </Text>
             </View>
 
@@ -221,7 +221,7 @@ export default function App() {
         onPress={() => setModalVisible(true)}
       >
         <Text style={{ userSelect: "none" }} className="text-white font-bold">
-          Crear ticket
+          Reportar fallo
         </Text>
       </StyledPressable>
 
