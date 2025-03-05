@@ -13,9 +13,8 @@ import { get, post } from "../../../services";
 import { SUPPORT_ROUTE } from "@env";
 import { useSession } from "../../../auth/ctx";
 import { RefreshIcon } from "../../../components/icons/Icons";
-
-import { toast } from "react-toastify";
 import Modal from "react-native-modal";
+import useAlert from "../../../hooks/useAlert";
 
 export default function Help() {
   const StyledPressable = styled(Pressable);
@@ -45,6 +44,7 @@ export default function Help() {
   };
   const [isModalVisible, setModalVisible] = useState(false);
   const [issue, setIssue] = useState("");
+  const showAlert = useAlert();
 
   useEffect(() => {
     fetchUserTickets();
@@ -67,7 +67,7 @@ export default function Help() {
       })
       .catch((error) => {
         console.log("fetchUserTickets", error.error);
-        toast.error("Ha ocurrido un error obteniendo tus reportes");
+        showAlert("Ha ocurrido un error obteniendo tus reportes");
         setLoading(false);
       });
   };
@@ -104,7 +104,7 @@ export default function Help() {
       })
       .catch((error) => {
         console.log("createTicket", error);
-        toast.error("Ha ocurrido un error, vuelve a intentarlo");
+        showAlert("Ha ocurrido un error, vuelve a intentarlo");
         setLoadingAction(false);
         closeModal();
       });

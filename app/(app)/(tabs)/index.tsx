@@ -4,7 +4,7 @@ import { useSession } from "../../../auth/ctx";
 import { styled } from "nativewind";
 import { get, post, put } from "../../../services";
 import { GET_CHAT_BY_USER_ID, CREATE_CHAT, GET_CHAT } from "@env";
-import { toast } from "react-toastify";
+import useAlert from "../../../hooks/useAlert";
 
 export default function Chat() {
   const { session } = useSession();
@@ -17,6 +17,7 @@ export default function Chat() {
   const scrollViewRef = useRef<ScrollView>(null);
   const [isSendingMessage, setSendingMessage] = useState(false);
   const [mustMoveScroll, setMoveScroll] = useState(true);
+  const showAlert = useAlert();
 
   useEffect(() => {
     fetchChatByUserId();
@@ -69,7 +70,7 @@ export default function Chat() {
         }
       })
       .catch((error) => {
-        toast.error("Ha ocurrido un error obteniendo los mensajes");
+        showAlert("Ha ocurrido un error obteniendo los mensajes");
       });
   };
 
@@ -129,7 +130,7 @@ export default function Chat() {
         setSendingMessage(false);
       })
       .catch((error) => {
-        toast.error("Ha ocurrido un error enviando el mensaje");
+        showAlert("Ha ocurrido un error enviando el mensaje");
         setSendingMessage(false);
       });
   };

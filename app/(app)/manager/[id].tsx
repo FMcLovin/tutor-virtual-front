@@ -14,7 +14,7 @@ import { get, put } from "../../../services";
 import { GET_CONTENT, GET_USER } from "@env";
 import { useLocalSearchParams } from "expo-router";
 import { CancelIcon, Pen, CheckIcon } from "../../../components/icons/Icons";
-import { toast } from "react-toastify";
+import useAlert from "../../../hooks/useAlert";
 
 export default function App() {
   const { session } = useSession();
@@ -35,6 +35,7 @@ export default function App() {
 
   const StyledPressable = styled(Pressable);
   const [editing, setEditing] = useState(isEditing === "true");
+  const showAlert = useAlert();
 
   useEffect(() => {
     fetchContent();
@@ -57,7 +58,7 @@ export default function App() {
 
       setLoading(false);
     } catch (error) {
-      toast.error("Ha ocurrido un error, vuelve a intentarlo");
+      showAlert("Ha ocurrido un error, vuelve a intentarlo");
       console.log("fetchContent", error);
       setLoading(false);
     }
@@ -90,11 +91,11 @@ export default function App() {
         setContent(contentDetails);
         setEditingContent(contentDetails);
         setEditing(false);
-        toast.success("Contenido editado");
+        showAlert("Contenido editado");
       })
       .catch((error) => {
         console.log(error);
-        toast.error("Ha ocurrido un error, vuelve a intentarlo");
+        showAlert("Ha ocurrido un error, vuelve a intentarlo");
       });
   };
 

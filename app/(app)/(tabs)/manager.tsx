@@ -16,8 +16,8 @@ import { Screen } from "../../../components/Screen";
 import { Eye, TrashIcon, Pen, PlayIcon } from "../../../components/icons/Icons";
 import ModalBody from "../../../components/ui/ModalBody";
 
-import { toast } from "react-toastify";
 import Modal from "react-native-modal";
+import useAlert from "../../../hooks/useAlert";
 
 export default function Manager() {
   const { session } = useSession();
@@ -54,6 +54,7 @@ export default function Manager() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [serverAnswer, setServerAnswer] = useState("");
+  const showAlert = useAlert();
 
   const StyledPressable = styled(Pressable);
 
@@ -90,7 +91,7 @@ export default function Manager() {
       })
       .catch((error) => {
         console.log("fetchContent", error.error);
-        toast.error("Ha ocurrido un error obteniendo el contenido");
+        showAlert("Ha ocurrido un error obteniendo el contenido");
         setLoading(false);
       });
   };
@@ -135,12 +136,12 @@ export default function Manager() {
     console.log("deleteContent", "Delete content pressed!", contentID, index);
     del(`${GET_CONTENT}${contentID}`, session?.token)
       .then(() => {
-        toast.success("Se ha eliminado el contenido");
+        showAlert("Se ha eliminado el contenido");
         setContent((prevContent) => prevContent.filter((_, i) => i !== index));
       })
       .catch((error) => {
         console.log(error);
-        toast.error("Ha ocurrido un error eliminando el contenido");
+        showAlert("Ha ocurrido un error eliminando el contenido");
       });
     setDeleteModal(false);
   };
@@ -179,7 +180,7 @@ export default function Manager() {
       .catch((error) => {
         console.log("testContent", error.error);
         setLoadingAction(false);
-        toast.error("Ha ocurrido un error, vuelve a intentarlo");
+        showAlert("Ha ocurrido un error, vuelve a intentarlo");
       });
   };
 
@@ -197,7 +198,9 @@ export default function Manager() {
     if (testedContent != null) {
       toggleModal();
       editContent(testedContent?._id);
-    } else toast.error("Ha ocurrido un error, vuelve a intentarlo");
+    } else {
+      showAlert("Ha ocurrido un error, vuelve a intentarlo");
+    }
   };
 
   /**

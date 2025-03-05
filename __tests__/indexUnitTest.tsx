@@ -4,7 +4,7 @@ import Chat from "../app/(app)/(tabs)/index";
 import { useSession } from "../auth/ctx";
 import { get, post, put } from "../services";
 import { GET_CHAT_BY_USER_ID, CREATE_CHAT, GET_CHAT } from "@env";
-import { toast } from "react-toastify";
+import useAlert from "../hooks/useAlert";
 
 // Mock de dependencias
 jest.mock("../auth/ctx", () => ({
@@ -17,10 +17,10 @@ jest.mock("../services", () => ({
   put: jest.fn(),
 }));
 
-jest.mock("react-toastify", () => ({
-  toast: {
-    error: jest.fn(),
-  },
+jest.mock("../../../hooks/useAlert", () => ({
+  // Mock de la función useAlert
+  __esModule: true,
+  default: jest.fn().mockReturnValue(jest.fn()),
 }));
 
 describe("Chat App", () => {
@@ -71,6 +71,7 @@ describe("Chat App", () => {
 
   it("handles error when sending message", async () => {
     const { getByText, getByPlaceholderText } = render(<Chat />);
+    const mockShowAlert = useAlert();
 
     // Simulamos un error en la respuesta de PUT.
     (put as jest.Mock).mockRejectedValueOnce(
@@ -84,7 +85,7 @@ describe("Chat App", () => {
     fireEvent.press(getByText("Enviar"));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith(
+      expect(mockShowAlert).toHaveBeenCalledWith(
         "Ha ocurrido un error enviando el mensaje",
       );
     });

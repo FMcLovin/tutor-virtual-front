@@ -12,7 +12,6 @@ import { useRouter } from "expo-router";
 import { get, put } from "../../../services";
 import { SUPPORT_ROUTE } from "@env";
 import { useSession } from "../../../auth/ctx";
-import { toast } from "react-toastify";
 import Modal from "react-native-modal";
 
 import { styled } from "nativewind";
@@ -20,6 +19,7 @@ import { Picker } from "@react-native-picker/picker";
 import { RefreshIcon } from "../../../components/icons/Icons";
 import BadgeComponent from "../../../components/ui/Badge";
 import { Screen } from "../../../components/Screen";
+import useAlert from "../../../hooks/useAlert";
 
 export default function Support() {
   const { session } = useSession();
@@ -56,6 +56,7 @@ export default function Support() {
   const [isLoadingAction, setLoadingAction] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [status, setStatus] = useState("open");
+  const showAlert = useAlert();
 
   useEffect(() => {
     checkUserRole();
@@ -90,7 +91,7 @@ export default function Support() {
       })
       .catch((error) => {
         console.log("fetchTickets", error.error);
-        toast.error("Ha ocurrido un error obteniendo tickets");
+        showAlert("Ha ocurrido un error obteniendo los reportes");
         setLoading(false);
       });
   };
@@ -110,14 +111,14 @@ export default function Support() {
         setLoadingAction(false);
         tickets[selectedTicket].status = status;
         tickets[selectedTicket].feedback = feedback;
-        toast.success("Ticket actualizado");
+        showAlert("Reporte actualizado");
         closeModal();
       })
       .catch((error) => {
         console.log("changeStatus", error);
         setLoadingAction(false);
-        toast.error("Ha ocurrido un error, vuelve a intentarlo");
         closeModal();
+        showAlert("Ha ocurrido un error, vuelve a intentarlo");
       });
   };
 

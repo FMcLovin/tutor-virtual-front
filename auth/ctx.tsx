@@ -4,7 +4,7 @@ import { useStorageState } from "./useStorageState";
 import { useRouter } from "expo-router";
 import { post } from "../services/httpService";
 import { AUTH_LOGIN } from "@env";
-import { toast } from "react-toastify";
+import useAlert from "../hooks/useAlert";
 
 const AuthContext = React.createContext<{
   signIn: (email: string, password: string) => void;
@@ -49,6 +49,7 @@ export function SessionProvider(props: React.PropsWithChildren) {
     token: string;
     user: any;
   }>("session");
+  const showAlert = useAlert();
 
   return (
     <AuthContext.Provider
@@ -60,7 +61,7 @@ export function SessionProvider(props: React.PropsWithChildren) {
               router.push("/");
             })
             .catch((error) => {
-              toast.error(error.error);
+              showAlert(error.error);
             });
         },
         signOut: () => {

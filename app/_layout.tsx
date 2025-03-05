@@ -5,8 +5,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SessionProvider } from "../auth/ctx";
 
 import { NativeWindStyleSheet } from "nativewind";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 NativeWindStyleSheet.setOutput({
   default: "native",
@@ -17,7 +15,6 @@ export default function Layout() {
     <SessionProvider>
       <SafeAreaProvider>
         <View className="flex-1">
-          <ToastContainer position="bottom-center" />
           <StatusBar style="auto" />
           <Stack
             screenOptions={{
