@@ -1,186 +1,26 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { View, Text, ScrollView, TextInput, Pressable } from "react-native";
-import { useSession } from "../../../auth/ctx";
+import Container from "../../../components/ui/Containers/Container";
 import { styled } from "nativewind";
-import { get, post, put } from "../../../services";
-import { GET_CHAT_BY_USER_ID, CREATE_CHAT, GET_CHAT } from "@env";
-import useAlert from "../../../hooks/useAlert";
+import useChat from "../../../hooks/useChat";
+import MessageContainer from "../../../components/ui/MessageContainer/MessageContainer";
 
 export default function Chat() {
-  const { session } = useSession();
-  const [messages, setMessages] = useState<
-    { _id: string; content: string; sender: string; timestamp: string }[]
-  >([]);
-  const [inputText, setInputText] = useState("");
+  const {
+    messages,
+    chatID,
+    isSendingMessage,
+    sendMessage,
+    scrollViewRef,
+    handleScroll,
+    setInputText,
+    inputText,
+  } = useChat();
+
   const StyledPressable = styled(Pressable);
-  const [chatID, setChatID] = useState("");
-  const scrollViewRef = useRef<ScrollView>(null);
-  const [isSendingMessage, setSendingMessage] = useState(false);
-  const [mustMoveScroll, setMoveScroll] = useState(true);
-  const showAlert = useAlert();
-
-  useEffect(() => {
-    fetchChatByUserId();
-  }, []);
-
-  useEffect(() => {
-    if (mustMoveScroll) {
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-    }
-  }, [messages, mustMoveScroll]);
-
-  /**
-   * fetchChatByUserId
-   * @returns Promise containing user chat or null
-   */
-  const fetchChatByUserId = async () => {
-    return await get(
-      `${GET_CHAT_BY_USER_ID}${session?.user._id}`,
-      session?.token,
-    )
-      .then((response) => {
-        setChatID(response[0].chat_id);
-        fetchChatDetails(response[0].chat_id);
-      })
-      .catch((error) => {
-        if (error.error === "Chats not found") {
-          createChat();
-        }
-      });
-  };
-
-  /**
-   * Get Chat details
-   * @param chatId chat's id
-   * @returns Promise containing chat data
-   */
-  const fetchChatDetails = async (chatId: string, messageId?: string) => {
-    const url = messageId
-      ? `${GET_CHAT}${chatId}/messages/${messageId}`
-      : `${GET_CHAT}${chatId}`;
-    return await get(url, session?.token)
-      .then((chatDetails) => {
-        const chatMessages = chatDetails || [];
-        if (messageId) {
-          prependChatMessages(chatMessages); // Agrega los mensajes al inicio
-          setMoveScroll(false);
-        } else {
-          initChatMessages(chatMessages); // Inicializa los mensajes
-          setMoveScroll(true);
-        }
-      })
-      .catch((error) => {
-        showAlert("Ha ocurrido un error obteniendo los mensajes");
-      });
-  };
-
-  /**
-   * Creates new chat
-   * @returns Promise containing the new chat
-   */
-  const createChat = async () => {
-    return await post(
-      CREATE_CHAT,
-      { user_id: session?.user._id },
-      session?.token,
-    )
-      .then((newChat) => {
-        setChatID(newChat._id);
-        const chatMessages = newChat || [];
-        initChatMessages(chatMessages);
-      })
-      .catch((error) => {
-        throw new Error("Error al crear un nuevo chat.");
-      });
-  };
-
-  /**
-   * initChatMessages
-   * Actualiza los mensajes del chat en el estado
-   * @param chatMessages los mensajes que se desean añadir
-   */
-  const initChatMessages = (
-    chatMessages: {
-      _id: string;
-      content: string;
-      sender: string;
-      timestamp: string;
-    }[],
-  ) => {
-    if (chatMessages.length > 0) {
-      setMessages((prevMessages) => [...prevMessages, ...chatMessages]);
-    } else {
-      setMessages(chatMessages);
-    }
-  };
-
-  /**
-   * sendMessage
-   * Envía un mensaje a la API y actualiza los mensajes
-   */
-  const sendMessage = () => {
-    setSendingMessage(true);
-    setInputText("");
-    if (inputText.trim() === "") return;
-    put(`${GET_CHAT}${chatID}`, { content: inputText }, session?.token)
-      .then((chatDetails) => {
-        setMoveScroll(true);
-        updateChatMessages(chatDetails.message);
-        updateChatMessages(chatDetails.iaResponse);
-        setSendingMessage(false);
-      })
-      .catch((error) => {
-        showAlert("Ha ocurrido un error enviando el mensaje");
-        setSendingMessage(false);
-      });
-  };
-
-  /**
-   * updateChatMessages
-   * Actualiza los mensajes del chat en el estado
-   * @param chatMessages los mensajes que se desean añadir
-   */
-  const updateChatMessages = (chatMessage: {
-    _id: string;
-    content: string;
-    sender: string;
-    timestamp: string;
-  }) => {
-    setMessages((prevMessages) => [...prevMessages, chatMessage]);
-  };
-
-  /**
-   * prependChatMessages
-   * Añade mensajes al inicio del estado actual
-   * @param newMessages nuevos mensajes a añadir
-   */
-  const prependChatMessages = (
-    newMessages: {
-      _id: string;
-      content: string;
-      sender: string;
-      timestamp: string;
-    }[],
-  ) => {
-    setMessages((prevMessages) => [...newMessages, ...prevMessages]);
-  };
-
-  /**
-   * handleScroll
-   * @param param0 nativeEvent
-   */
-  const handleScroll = ({ nativeEvent }: any) => {
-    if (nativeEvent.contentOffset.y <= 0) {
-      // Obtener el ID del mensaje más antiguo
-      const oldestMessageId = messages[0]?._id;
-      if (oldestMessageId) {
-        fetchChatDetails(chatID, oldestMessageId);
-      }
-    }
-  };
 
   return (
-    <View className="flex-1 px-6 bg-background">
+    <Container>
       {/* Contenedor del chat */}
       <ScrollView
         ref={scrollViewRef}
@@ -189,29 +29,17 @@ export default function Chat() {
         scrollEventThrottle={16}
       >
         {messages.map((message, index) => (
-          <View
-            key={index}
-            className={`w-3/4 ${
-              message.sender === "user" ? "self-end" : "self-start"
-            }`}
+          <MessageContainer
+            key={message._id}
+            message={message}
+            index={index}
+            date={new Date(message.timestamp).toLocaleString()}
           >
-            <View
-              key={index}
-              className={`p-3 rounded-lg my-2 w-auto max-w-fit ${
-                message.sender === "user"
-                  ? "bg-green-200 self-end"
-                  : "bg-blue-200 self-start"
-              }`}
-            >
-              <Text className="text-base">{message.content}</Text>
-              <Text className="text-xs text-gray-500 mt-1">
-                {new Date(message.timestamp).toLocaleString()}{" "}
-                {/* Puedes ajustar el formato de la fecha aquí */}
-              </Text>
-            </View>
-          </View>
+            {message.content}
+          </MessageContainer>
         ))}
       </ScrollView>
+
       {isSendingMessage && (
         <View className="w-3/4 self-center fixed">
           <View className="p-3 rounded-lg my-2 w-auto max-w-fit bg-blue-200 self-center">
@@ -241,6 +69,6 @@ export default function Chat() {
           </Text>
         </StyledPressable>
       </View>
-    </View>
+    </Container>
   );
 }

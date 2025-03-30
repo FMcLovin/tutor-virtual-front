@@ -2,6 +2,7 @@
 import { View, Text, Image } from "react-native";
 import StyledTextInput from "./ui/inputs/StyledTextInput";
 import FormButton from "./ui/Buttons/FormButton";
+import MainContainer from "./ui/Containers/MainContainer";
 
 const logoImage = require("../assets/logo.png");
 
@@ -29,7 +30,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
   isLargeScreen,
 }) => {
   return (
-    <View className="flex-1 items-center justify-center p-4 relative">
+    <MainContainer className="flex-1 items-center justify-center p-4 relative">
       <View
         className={`flex-1 items-center justify-center ${
           isLargeScreen ? "w-1/2" : "w-9/12"
@@ -74,7 +75,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           Iniciar Sesión
         </FormButton>
       </View>
-    </View>
+    </MainContainer>
   );
 };
 

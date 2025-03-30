@@ -1,12 +1,8 @@
 import { Tabs } from "expo-router";
-import {
-  ChatIcon,
-  AboutIcon,
-  ClipBoard,
-} from "../../../components/icons/Icons";
 import { useSession } from "../../../auth/ctx";
 import { Pressable, Text } from "react-native";
 import { styled } from "nativewind";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const StyledPressable = styled(Pressable);
 
@@ -33,8 +29,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Chat",
-          tabBarIcon: ({ color }) => <ChatIcon size={28} color={color} />,
+          title: "Mi tutor",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="android-messages"
+              size={25}
+              color={color}
+            />
+          ),
         }}
       />
 
@@ -42,7 +44,13 @@ export default function TabLayout() {
         name="manager"
         options={{
           title: "Contenido",
-          tabBarIcon: ({ color }) => <ClipBoard size={28} color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="clipboard-text"
+              size={25}
+              color={color}
+            />
+          ),
           href: userRole === "admin_role" ? "manager" : null,
         }}
       />
@@ -51,7 +59,9 @@ export default function TabLayout() {
         name="help"
         options={{
           title: "Soporte y ayuda",
-          tabBarIcon: ({ color }) => <AboutIcon size={28} color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="help-box" size={25} color={color} />
+          ),
           href: userRole === "student_role" ? "help" : null,
         }}
       />
@@ -60,7 +70,9 @@ export default function TabLayout() {
         name="support"
         options={{
           title: "Soporte y ayuda",
-          tabBarIcon: ({ color }) => <AboutIcon size={28} color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="help-box" size={25} color={color} />
+          ),
           href: userRole === "admin_role" ? "support" : null,
         }}
       />
