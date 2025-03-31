@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Text,
   ActivityIndicator,
@@ -8,163 +8,43 @@ import {
   StyleSheet,
   TextInput,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { get, put } from "../../../services";
-import { SUPPORT_ROUTE } from "@env";
-import { useSession } from "../../../auth/ctx";
-import Modal from "react-native-modal";
-
 import { styled } from "nativewind";
 import { Picker } from "@react-native-picker/picker";
-import { RefreshIcon } from "../../../components/icons/Icons";
+import Modal from "react-native-modal";
 import BadgeComponent from "../../../components/ui/Badge";
 import { Screen } from "../../../components/Screen";
-import useAlert from "../../../hooks/useAlert";
+import { RefreshIcon } from "../../../components/icons/Icons";
+import { useSupport } from "../../../hooks/useSupport";
 
 export default function Support() {
-  const { session } = useSession();
-  const router = useRouter();
-  type Color = "green" | "red" | "yellow";
-  const green: Color = "green";
-  const red: Color = "red";
-  const yellow: Color = "yellow";
-  const statusColors: Record<string, Color> = {
-    open: green,
-    in_progress: yellow,
-    closed: red,
-  };
-  const statusBadge: Record<string, string> = {
-    open: "Abierto",
-    in_progress: "En progreso",
-    closed: "Cerrado",
-  };
+  const {
+    tickets,
+    isLoading,
+    isLoadingAction,
+    selectedTicket,
+    feedback,
+    status,
+    setFeedback,
+    setStatus,
+    fetchTickets,
+    changeStatus,
+    openModal,
+    closeModal,
+  } = useSupport();
+
   const StyledPressable = styled(Pressable);
-  const [tickets, setTickets] = useState<
-    {
-      _id: string;
-      user_id: string;
-      issue: string;
-      status: string;
-      feedback: string;
-      created_at: string;
-      updated_at: string;
-    }[]
-  >([]);
-  const [selectedTicket, setSelectedTicket] = useState(-1);
-  const [feedback, setFeedback] = useState("");
-  const [isLoading, setLoading] = useState(true);
-  const [isLoadingAction, setLoadingAction] = useState(false);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [status, setStatus] = useState("open");
-  const showAlert = useAlert();
 
-  useEffect(() => {
-    checkUserRole();
-  }, []);
-
-  /**
-   * checkUserRole
-   */
-  const checkUserRole = () => {
-    console.log(session?.user.role_id);
-    if (session?.user.role_id === "admin_role") {
-      fetchTickets();
-    } else {
-      router.push(`/`);
-    }
-  };
-
-  /**
-   * fetchTickets
-   */
-  const fetchTickets = () => {
-    console.log("fetchTickets", "fetchTickets");
-    setLoading(true);
-    get(SUPPORT_ROUTE, session?.token)
-      .then((response) => {
-        console.log("fetchTickets", response);
-        setLoading(false);
-        const tickets = response || [];
-        if (tickets.length > 0) {
-          setTickets(tickets);
-        }
-      })
-      .catch((error) => {
-        console.log("fetchTickets", error.error);
-        showAlert("Ha ocurrido un error obteniendo los reportes");
-        setLoading(false);
-      });
-  };
-
-  /**
-   * changeStatus
-   */
-  const changeStatus = () => {
-    const ticketID = tickets[selectedTicket]._id;
-    let ticketData = {
-      status: status,
-      feedback: feedback,
-    };
-    setLoadingAction(true);
-    put(`${SUPPORT_ROUTE}/${ticketID}`, ticketData, session?.token)
-      .then(() => {
-        setLoadingAction(false);
-        tickets[selectedTicket].status = status;
-        tickets[selectedTicket].feedback = feedback;
-        showAlert("Reporte actualizado");
-        closeModal();
-      })
-      .catch((error) => {
-        console.log("changeStatus", error);
-        setLoadingAction(false);
-        closeModal();
-        showAlert("Ha ocurrido un error, vuelve a intentarlo");
-      });
-  };
-
-  /**
-   * openModal
-   */
-  const openModal = (item: any, index: number) => {
-    console.log("openModal", item, index);
-    setSelectedTicket(index);
-    setStatus(item.status);
-    setFeedback(item.feedback);
-    setModalVisible(true);
-  };
-
-  /**
-   * cancelAction
-   */
-  const closeModal = () => {
-    setFeedback("");
-    setModalVisible(false);
-  };
-
-  /**
-   * getStatusColor
-   * @param status ticket's string status
-   * @returns color's string
-   */
-  const getStatusColor = (status: string): Color => statusColors[status];
-
-  /**
-   * getStatusBadge
-   * @param status ticket's string status
-   * @returns status badge string
-   */
-  const getStatusBadge = (status: string): string => statusBadge[status];
-
-  if (isLoading)
+  if (isLoading) {
     return (
       <Screen>
         <ActivityIndicator className="flex-1" size="large" color="#020617" />
       </Screen>
     );
+  }
 
   return (
     <Screen>
-      <Modal isVisible={isModalVisible}>
+      <Modal isVisible={selectedTicket !== null}>
         <View className="flex justify-center items-center">
           <View className="bg-white rounded-lg max-w-lg w-full p-6 shadow-lg z-50">
             <View className="flex flex-row justify-between items-center mb-4">
@@ -176,7 +56,7 @@ export default function Support() {
             <View className="mb-4">
               <Text className="text-md text-black">Problema:</Text>
               <Text className="text-sm text-gray-600">
-                {selectedTicket > -1 && tickets[selectedTicket].issue}
+                {selectedTicket !== null && tickets[selectedTicket].issue}
               </Text>
             </View>
 
@@ -198,7 +78,7 @@ export default function Support() {
               <Picker
                 selectedValue={status}
                 style={styles.picker}
-                onValueChange={(itemValue) => setStatus(itemValue)}
+                onValueChange={setStatus}
               >
                 <Picker.Item label="Abierto" value="open" />
                 <Picker.Item label="En progreso" value="in_progress" />
@@ -237,9 +117,7 @@ export default function Support() {
         keyExtractor={(ticket) => ticket._id}
         renderItem={({ item, index }) => (
           <StyledPressable
-            onPress={() => {
-              openModal(item, index);
-            }}
+            onPress={() => openModal(index)}
             className="active:opacity-70 active:border-white/50"
           >
             <View className="flex flex-row justify-between items-center py-5">
@@ -248,8 +126,8 @@ export default function Support() {
                   {item.issue.slice(0, 50)}...
                 </Text>
                 <BadgeComponent
-                  label={getStatusBadge(item.status)}
-                  color={getStatusColor(item.status)}
+                  label={item.status}
+                  color={item.status === "open" ? "green" : "red"}
                 />
               </View>
 

@@ -3,16 +3,7 @@ import { get, post } from "../services";
 import { SUPPORT_ROUTE } from "@env";
 import { useSession } from "../auth/ctx";
 import useAlert from "./useAlert";
-
-export type Ticket = {
-  _id: string;
-  user_id: string;
-  issue: string;
-  status: string;
-  feedback: string;
-  created_at: string;
-  updated_at: string;
-};
+import { Ticket } from "../models/Ticket";
 
 export default function useTickets() {
   const { session } = useSession();
