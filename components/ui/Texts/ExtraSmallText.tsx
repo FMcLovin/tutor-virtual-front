@@ -4,15 +4,15 @@ import styled from "styled-components/native";
 import { colors } from "../../colors";
 
 import { TextProps } from "./types";
-const { danger } = colors;
+const { black } = colors;
 
 const StyledText = styled.Text`
-  font-size: 12px;
-  color: ${danger};
+  font-size: 10px;
+  color: ${black};
   text-align: left;
 `;
 
-const ErrorText: FunctionComponent<TextProps> = (props) => {
+const ExtraSmallText: FunctionComponent<TextProps> = (props) => {
   return (
     <StyledText className={props.className} style={props.style}>
       {props.children}
@@ -20,4 +20,4 @@ const ErrorText: FunctionComponent<TextProps> = (props) => {
   );
 };
 
-export default ErrorText;
+export default ExtraSmallText;

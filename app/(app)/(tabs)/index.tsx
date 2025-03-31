@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { View, Text, ScrollView, TextInput, Pressable } from "react-native";
 import Container from "../../../components/ui/Containers/Container";
 import { styled } from "nativewind";
@@ -30,7 +30,7 @@ export default function Chat() {
       >
         {messages.map((message, index) => (
           <MessageContainer
-            key={message._id}
+            key={index}
             message={message}
             index={index}
             date={new Date(message.timestamp).toLocaleString()}

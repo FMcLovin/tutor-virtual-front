@@ -70,7 +70,7 @@ const useChat = () => {
     )
       .then((newChat) => {
         setChatID(newChat._id);
-        initChatMessages(newChat);
+        initChatMessages(newChat.conversation.messages);
       })
       .catch(() => {
         throw new Error("Error al crear un nuevo chat.");

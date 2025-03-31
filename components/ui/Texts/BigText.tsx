@@ -13,7 +13,11 @@ const StyledText = styled.Text`
 `;
 
 const BigText: FunctionComponent<TextProps> = (props) => {
-  return <StyledText style={props.style}>{props.children}</StyledText>;
+  return (
+    <StyledText className={props.className} style={props.style}>
+      {props.children}
+    </StyledText>
+  );
 };
 
 export default BigText;

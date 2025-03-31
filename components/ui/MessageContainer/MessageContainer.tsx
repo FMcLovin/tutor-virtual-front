@@ -1,10 +1,10 @@
 import React, { FunctionComponent } from "react";
 import styled from "styled-components/native";
-import { Text } from "react-native";
 
 import { MessageProps } from "./types";
 import { Message } from "../../../models/Message";
 import SmallText from "../Texts/SmallText";
+import ExtraSmallText from "../Texts/ExtraSmallText";
 
 const MessageParent = styled.View`
   width: 100%;
@@ -21,7 +21,10 @@ const MessageChild = styled.View<{ sender: string }>`
     props.sender === "user" ? "flex-end" : "flex-start"};
   background-color: ${(props: Message) =>
     props.sender === "user" ? "#bbf7d0" : "#bfdbfe"};
-  border-radius: 0.5rem;
+  border-radius: ${(props: Message) =>
+    props.sender === "user"
+      ? "0.5rem 0rem 0.5rem 0.5rem"
+      : "0rem 0.5rem 0.5rem 0.5rem"};
 `;
 
 const MessageContainer: FunctionComponent<MessageProps> = (props) => {
@@ -34,7 +37,9 @@ const MessageContainer: FunctionComponent<MessageProps> = (props) => {
     >
       <MessageChild sender={sender} index={props.index}>
         <SmallText>{props.children}</SmallText>
-        <Text className="text-xs text-gray-500 mt-1">{props.date}</Text>
+        <ExtraSmallText className="text-gray-500 mt-1">
+          {props.date}
+        </ExtraSmallText>
       </MessageChild>
     </MessageParent>
   );
