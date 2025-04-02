@@ -69,19 +69,20 @@ export default function App() {
     setLoading(true);
     let data = {
       created_by: session?.user._id,
+      updated_by: session?.user._id,
       question: question,
       answer: asnwer,
       category: category,
     };
     post(GET_CONTENT, data, session?.token)
       .then((response) => {
-        console.log("fetchContent", response);
+        console.log("createContent", response);
         setLoading(false);
         alert("Contenido creado");
         cancelAction();
       })
       .catch((error) => {
-        console.log("fetchContent", error.error);
+        console.log("createContent", error.error);
         setLoading(false);
         alert("Ha ocurrido un error, vuelve a intentarlo más tarde");
       });

@@ -9,7 +9,7 @@ const { background } = colors;
 const StyledView = styled.View`
   flex: 1;
   padding: 25px;
-  padding-top: 40px;
+  padding-top: 10px;
   background-color: ${background};
 `;
 
