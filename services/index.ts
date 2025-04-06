@@ -1,4 +1,11 @@
 // src/services/index.ts
-import { get, post, put, del } from "./httpService";
+import {
+  get,
+  post,
+  put,
+  del,
+  exportDataset,
+  importDataset,
+} from "./httpService";
 
-export { get, post, put, del };
+export { get, post, put, del, exportDataset, importDataset };

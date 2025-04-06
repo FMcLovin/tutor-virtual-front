@@ -1,24 +1,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import { useSession } from "../auth/ctx";
-import { get, del } from "../services";
+import { get, del, exportDataset, importDataset } from "../services";
 import { GET_CONTENT } from "@env";
 import useAlert from "./useAlert";
-
-interface Content {
-  _id: string;
-  question: string;
-  answer: string;
-  created_by: string;
-  category: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface PendingDelete {
-  contendID: string;
-  index: number;
-}
+import { Content } from "../models/Content";
+import { PendingDelete } from "../models/PendingDelete";
 
 export default function useManager() {
   const { session } = useSession();
@@ -90,6 +77,40 @@ export default function useManager() {
     router.push(`manager/${contentID}`);
   };
 
+  const importData = async () => {
+    try {
+      const response = await importDataset(
+        {
+          userId: session?.user._id,
+          fileBase64:
+            "eyJjb252ZXJzYXRpb24iOltbeyJodW1hbiI6IkhvbGEifSx7ImdwdCI6IkhvbGEgdXN1YXJpbyJ9XV19", // tu base64
+        },
+        session?.token,
+      );
+      console.log("Dataset importado:", response);
+    } catch (err) {
+      console.error("Error importando dataset:", err);
+    }
+  };
+
+  const exportData = async () => {
+    try {
+      const response = await exportDataset(session?.token);
+      const base64File = response.fileBase64;
+      downloadBase64File(base64File, "dataset.json");
+      console.log("Archivo exportado en base64:", base64File);
+    } catch (err) {
+      console.error("Error exportando dataset:", err);
+    }
+  };
+
+  const downloadBase64File = (base64: string, fileName: string) => {
+    const link = document.createElement("a");
+    link.href = `data:application/json;base64,${base64}`;
+    link.download = fileName;
+    link.click();
+  };
+
   return {
     content,
     pendingDelete,
@@ -101,5 +122,7 @@ export default function useManager() {
     openDeleteModal,
     deleteContent,
     openContent,
+    importData,
+    exportData,
   };
 }

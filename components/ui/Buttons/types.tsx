@@ -11,5 +11,6 @@ export interface ButtonProps {
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   isLoading?: boolean;
+  icon?: string;
   onPress: ((event: GestureResponderEvent) => void) | undefined;
 }

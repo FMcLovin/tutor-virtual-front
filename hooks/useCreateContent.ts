@@ -11,9 +11,6 @@ interface CreateContentHook {
   asnwer: string;
   setAnswer: (value: string) => void;
   asnwerError: string;
-  category: string;
-  setCategory: (value: string) => void;
-  categoryError: string;
   isLoading: boolean;
   validateData: () => void;
   cancelAction: () => void;
@@ -28,9 +25,6 @@ export function useCreateContent(): CreateContentHook {
 
   const [asnwer, setAnswer] = useState("");
   const [asnwerError, setAnswerError] = useState("");
-
-  const [category, setCategory] = useState("tutoria");
-  const [categoryError, setCategoryError] = useState("");
 
   const [isLoading, setLoading] = useState(false);
 
@@ -61,13 +55,6 @@ export function useCreateContent(): CreateContentHook {
       setAnswerError("");
     }
 
-    if (!category) {
-      setCategoryError("Por favor, selecciona una categoría");
-      hasError = true;
-    } else {
-      setCategoryError("");
-    }
-
     if (!hasError) {
       createContent();
     }
@@ -84,7 +71,6 @@ export function useCreateContent(): CreateContentHook {
       updated_by: session?.user._id,
       question,
       answer: asnwer,
-      category,
     };
 
     post(GET_CONTENT, data, session?.token)
@@ -107,9 +93,6 @@ export function useCreateContent(): CreateContentHook {
     asnwer,
     setAnswer,
     asnwerError,
-    category,
-    setCategory,
-    categoryError,
     isLoading,
     validateData,
     cancelAction,

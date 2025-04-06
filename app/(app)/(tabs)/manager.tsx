@@ -10,7 +10,8 @@ import {
 import Modal from "react-native-modal";
 
 import MainContainer from "../../../components/ui/Containers/MainContainer";
-import { Eye, TrashIcon, Pen } from "../../../components/icons/Icons";
+import SmallText from "../../../components/ui/Texts/SmallText";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ModalBody from "../../../components/ui/ModalBody";
 
 import useManager from "../../../hooks/useManager";
@@ -27,6 +28,8 @@ export default function Manager() {
     openDeleteModal,
     deleteContent,
     openContent,
+    importData,
+    exportData,
   } = useManager();
 
   const StyledPressable = styled(Pressable);
@@ -54,6 +57,52 @@ export default function Manager() {
         />
       </Modal>
 
+      <View className="flex flex-col sm:flex-row justify-between sm:items-center p-1 w-full">
+        <View className="w-auto flex flex-col">
+          <SmallText>
+            Sólo se admiten formatos ".json" para importar datos
+          </SmallText>
+        </View>
+        <View className="flex flex-row sm:flex-row w-auto gap-2 mt-3 sm:mt-0">
+          <StyledPressable
+            onPress={() => importData()}
+            className="p-3 mr-1 mb-1 rounded-lg bg-primary active:opacity-70 flex flex-row justify-between"
+          >
+            <SmallText
+              style={{ userSelect: "none" }}
+              className="text-white mr-2"
+            >
+              Importar dataset
+            </SmallText>
+            <MaterialCommunityIcons
+              className="text-center"
+              name="import"
+              size={20}
+              color={"white"}
+            />
+          </StyledPressable>
+          <StyledPressable
+            onPress={() => exportData()}
+            className="p-3 mr-1 mb-1 rounded-lg bg-secondary active:opacity-70  flex flex-row justify-between"
+          >
+            <SmallText
+              style={{ userSelect: "none" }}
+              className="text-white mr-2"
+            >
+              Exportar dataset
+            </SmallText>
+            <MaterialCommunityIcons
+              className="text-center"
+              name="export"
+              size={20}
+              color={"white"}
+            />
+          </StyledPressable>
+        </View>
+      </View>
+
+      <View className="h-px bg-gray-200" />
+
       <FlatList
         data={content}
         keyExtractor={(item) => item._id}
@@ -70,24 +119,39 @@ export default function Manager() {
 
             <View className="flex flex-row sm:flex-row w-auto gap-2 mt-3 sm:mt-0">
               <StyledPressable
-                onPress={() => openDeleteModal(item, index)}
-                className="p-3 mr-1 mb-1 rounded-lg bg-danger active:opacity-70"
-              >
-                <TrashIcon className="text-center" size={15} color={"white"} />
-              </StyledPressable>
-
-              <StyledPressable
                 onPress={() => editContent(item._id)}
                 className="p-3 mr-1 mb-1 rounded-lg bg-warning active:opacity-70"
               >
-                <Pen className="text-center" size={15} color={"white"} />
+                <MaterialCommunityIcons
+                  className="text-center"
+                  name="pen"
+                  size={20}
+                  color={"white"}
+                />
               </StyledPressable>
 
               <StyledPressable
                 onPress={() => openContent(item._id)}
                 className="p-3 mb-1 rounded-lg bg-primary active:opacity-70"
               >
-                <Eye className="text-center" size={15} color={"white"} />
+                <MaterialCommunityIcons
+                  className="text-center"
+                  name="eye"
+                  size={20}
+                  color={"white"}
+                />
+              </StyledPressable>
+
+              <StyledPressable
+                onPress={() => openDeleteModal(item, index)}
+                className="p-3 mr-1 mb-1 rounded-lg bg-danger active:opacity-70"
+              >
+                <MaterialCommunityIcons
+                  className="text-center"
+                  name="trash-can"
+                  size={20}
+                  color={"white"}
+                />
               </StyledPressable>
             </View>
           </View>
