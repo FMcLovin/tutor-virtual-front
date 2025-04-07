@@ -131,7 +131,7 @@ export default function useManager() {
         fetchContent();
       }
     } catch (err) {
-      console.error("❌ Error importando dataset:", err);
+      console.error("Error importando dataset:", err);
       showAlert("Ocurrió un error al importar el dataset");
     }
   };
