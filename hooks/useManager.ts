@@ -6,6 +6,8 @@ import { GET_CONTENT } from "@env";
 import useAlert from "./useAlert";
 import { Content } from "../models/Content";
 import { PendingDelete } from "../models/PendingDelete";
+import * as DocumentPicker from "expo-document-picker";
+import { readFileAsBase64 } from "../utils/utils";
 
 export default function useManager() {
   const { session } = useSession();
@@ -24,6 +26,9 @@ export default function useManager() {
     checkUserRole();
   }, []);
 
+  /**
+   *
+   */
   const checkUserRole = () => {
     if (session?.user.role_id === "admin_role") {
       fetchContent();
@@ -32,6 +37,9 @@ export default function useManager() {
     }
   };
 
+  /**
+   *
+   */
   const fetchContent = () => {
     setLoading(true);
     get(GET_CONTENT, session?.token)
@@ -39,7 +47,7 @@ export default function useManager() {
         setLoading(false);
         const fetchedContent = response || [];
         if (fetchedContent.length > 0) {
-          setContent((prevContent) => [...prevContent, ...fetchedContent]);
+          setContent(fetchedContent);
         }
       })
       .catch(() => {
@@ -48,19 +56,36 @@ export default function useManager() {
       });
   };
 
+  /**
+   *
+   */
   const createContent = () => {
     router.push("manager/create");
   };
 
+  /**
+   *
+   * @param contentID Content's String ID
+   */
   const editContent = (contentID: string) => {
     router.push(`manager/${contentID}?isEditing=true`);
   };
 
+  /**
+   *
+   * @param content Content object
+   * @param index COntent's index in list
+   */
   const openDeleteModal = (content: Content, index: number) => {
     setPendingDelete({ contendID: content._id, index });
     setDeleteModal(true);
   };
 
+  /**
+   *
+   * @param contentID Content's String ID
+   * @param index Content's index in list
+   */
   const deleteContent = (contentID: string, index: number) => {
     del(`${GET_CONTENT}${contentID}`, session?.token)
       .then(() => {
@@ -77,30 +102,52 @@ export default function useManager() {
     router.push(`manager/${contentID}`);
   };
 
+  /**
+   *
+   */
   const importData = async () => {
     try {
-      const response = await importDataset(
-        {
-          userId: session?.user._id,
-          fileBase64:
-            "eyJjb252ZXJzYXRpb24iOltbeyJodW1hbiI6IkhvbGEifSx7ImdwdCI6IkhvbGEgdXN1YXJpbyJ9XV19", // tu base64
-        },
-        session?.token,
-      );
-      console.log("Dataset importado:", response);
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "application/json",
+        copyToCacheDirectory: true,
+      });
+
+      if (result.canceled) return;
+
+      const file = result.assets[0];
+
+      if (file && file.uri) {
+        const base64 = await readFileAsBase64(file.uri);
+
+        await importDataset(
+          {
+            userId: session?.user._id,
+            fileBase64: base64,
+          },
+          session?.token,
+        );
+
+        showAlert("El dataset se importó correctamente");
+        fetchContent();
+      }
     } catch (err) {
-      console.error("Error importando dataset:", err);
+      console.error("❌ Error importando dataset:", err);
+      showAlert("Ocurrió un error al importar el dataset");
     }
   };
 
+  /**
+   *
+   */
   const exportData = async () => {
     try {
       const response = await exportDataset(session?.token);
       const base64File = response.fileBase64;
       downloadBase64File(base64File, "dataset.json");
-      console.log("Archivo exportado en base64:", base64File);
+      fetchContent();
     } catch (err) {
       console.error("Error exportando dataset:", err);
+      showAlert("Ocurrió un error al exportar el dataset");
     }
   };
 
