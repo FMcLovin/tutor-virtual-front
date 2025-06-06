@@ -29,7 +29,12 @@ export default function App() {
   if (isLoading)
     return (
       <Screen>
-        <ActivityIndicator className="flex-1" size="large" color="#020617" />
+        <ActivityIndicator
+          testID="ActivityIndicator"
+          className="flex-1"
+          size="large"
+          color="#020617"
+        />
       </Screen>
     );
 
@@ -48,6 +53,7 @@ export default function App() {
           <View className="w-3/12 ml-auto flex flex-row">
             {/* Botones solo visibles en modo edición */}
             <StyledPressable
+              testID="validate-button"
               onPress={() => {
                 validateData();
               }}
@@ -62,6 +68,7 @@ export default function App() {
             </StyledPressable>
 
             <StyledPressable
+              testID="cancel-button"
               onPress={() => {
                 cancelAction();
               }}

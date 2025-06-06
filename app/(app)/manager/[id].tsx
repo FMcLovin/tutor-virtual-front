@@ -37,7 +37,12 @@ export default function App() {
   if (isLoading) {
     return (
       <Screen>
-        <ActivityIndicator className="flex-1" size="large" color="#020617" />
+        <ActivityIndicator
+          testID="ActivityIndicator"
+          className="flex-1"
+          size="large"
+          color="#020617"
+        />
       </Screen>
     );
   }
@@ -61,6 +66,7 @@ export default function App() {
               {editing ? (
                 <>
                   <StyledPressable
+                    testID="check-button"
                     onPress={updateContent}
                     className="w-10 h-10 p-2 flex items-center justify-center mr-1 rounded-lg bg-success active:opacity-70"
                   >
@@ -72,6 +78,7 @@ export default function App() {
                   </StyledPressable>
 
                   <StyledPressable
+                    testID="cancel-button"
                     onPress={() => setEditing(false)}
                     className="w-10 h-10 p-2 flex items-center justify-center mr-1 rounded-lg bg-red-500 active:opacity-70"
                   >

@@ -37,7 +37,12 @@ export default function Support() {
   if (isLoading) {
     return (
       <Screen>
-        <ActivityIndicator className="flex-1" size="large" color="#020617" />
+        <ActivityIndicator
+          testID="refresh-button"
+          className="flex-1"
+          size="large"
+          color="#020617"
+        />
       </Screen>
     );
   }
@@ -76,6 +81,7 @@ export default function Support() {
             <View className="mb-4">
               <Text className="text-md text-black">Estado:</Text>
               <Picker
+                testID="picker-status"
                 selectedValue={status}
                 style={styles.picker}
                 onValueChange={setStatus}
@@ -146,6 +152,7 @@ export default function Support() {
       />
 
       <StyledPressable
+        testID="refresh-button"
         className="absolute bottom-6 left-6 bg-accent p-4 rounded-full shadow-lg"
         onPress={fetchTickets}
       >

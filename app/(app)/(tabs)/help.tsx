@@ -138,6 +138,7 @@ export default function Help() {
 
       {/* Botón para refrescar lista de reportes */}
       <StyledPressable
+        testID="refresh-button"
         className="absolute bottom-6 left-6 bg-accent p-4 rounded-full shadow-lg"
         onPress={fetchUserTickets}
       >

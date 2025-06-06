@@ -37,7 +37,12 @@ export default function Manager() {
   if (isLoading) {
     return (
       <MainContainer>
-        <ActivityIndicator className="flex-1" size="large" color="#020617" />
+        <ActivityIndicator
+          testID="activity-indicator"
+          className="flex-1"
+          size="large"
+          color="#020617"
+        />
       </MainContainer>
     );
   }
@@ -119,6 +124,7 @@ export default function Manager() {
 
             <View className="flex flex-row sm:flex-row w-auto gap-2 mt-3 sm:mt-0">
               <StyledPressable
+                testID={`edit-button-${item._id}`}
                 onPress={() => editContent(item._id)}
                 className="p-3 mr-1 mb-1 rounded-lg bg-warning active:opacity-70"
               >
@@ -131,6 +137,7 @@ export default function Manager() {
               </StyledPressable>
 
               <StyledPressable
+                testID={`view-button-${item._id}`}
                 onPress={() => openContent(item._id)}
                 className="p-3 mb-1 rounded-lg bg-primary active:opacity-70"
               >
@@ -143,6 +150,7 @@ export default function Manager() {
               </StyledPressable>
 
               <StyledPressable
+                testID={`delete-button-${item._id}`}
                 onPress={() => openDeleteModal(item, index)}
                 className="p-3 mr-1 mb-1 rounded-lg bg-danger active:opacity-70"
               >
