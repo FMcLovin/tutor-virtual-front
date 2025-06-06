@@ -57,3 +57,16 @@ export const put = async (endpoint: string, data: any, token?: string) => {
 export const del = async (endpoint: string, token?: string) => {
   return makeRequest("DELETE", endpoint, undefined, token);
 };
+
+export const exportDataset = async (
+  token?: string,
+): Promise<{ fileBase64: string }> => {
+  return get("content/export-dataset", token);
+};
+
+export const importDataset = async (
+  data: { userId: string; fileBase64: string },
+  token?: string,
+): Promise<any> => {
+  return post("content/import-dataset", data, token);
+};

@@ -4,7 +4,7 @@ import { Stack, Redirect } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { NativeWindStyleSheet } from "nativewind";
-import { useSession } from "../ctx";
+import { useSession } from "../../auth/ctx";
 
 NativeWindStyleSheet.setOutput({
   default: "native",

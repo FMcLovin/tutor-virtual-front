@@ -1,24 +1,18 @@
-import { useState } from "react";
-
+// screens/LoginScreen.tsx
+import React, { useState } from "react";
 import {
   View,
-  Text,
-  TextInput,
-  Pressable,
-  Platform,
+  KeyboardAvoidingView,
+  ScrollView,
   Image,
+  Platform,
   useWindowDimensions,
 } from "react-native";
-import { styled } from "nativewind";
-
-import { useSession } from "./ctx";
 import { Redirect } from "expo-router";
-import { KeyboardAvoidingView, ScrollView } from "react-native";
+import { useSession } from "../auth/ctx";
+import LoginForm from "../components/LoginForm";
 
-const StyledPressable = styled(Pressable);
-const logoImage = require("../assets/logo.png");
 const blurryDesktop = require("../assets/blurry_desktop.svg");
-const blurryPhone = require("../assets/blurry_phone.svg");
 
 export default function LoginScreen() {
   const [email, setEmail] = useState<string>("");
@@ -54,7 +48,7 @@ export default function LoginScreen() {
    * handleLogin
    * @returns null
    */
-  const handleLogin = async () => {
+  const handleLogin = async (email: string, password: string) => {
     resetErrors();
     setLoading(true);
 
@@ -72,6 +66,8 @@ export default function LoginScreen() {
         return;
       }
 
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       await signIn(email.trim(), password.trim());
     } finally {
       setLoading(false);
@@ -81,6 +77,7 @@ export default function LoginScreen() {
   if (session) {
     return <Redirect href="/" />;
   }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -91,68 +88,22 @@ export default function LoginScreen() {
         className="flex-1"
       >
         <View className="flex-1 flex-row">
-          {/* Muestra si la app corre en web o móvil */}
           {isWeb && isLargeScreen && (
             <View className="flex-1 items-center justify-center bg-slate-300">
               <Image className="h-full w-full" source={blurryDesktop} />
             </View>
           )}
-          <View className="flex-1 items-center justify-center p-4 relative">
-            {!isWeb && (
-              <Image className="h-full w-full absolute" source={blurryPhone} />
-            )}
-            {/* Formulario de inicio de sesión */}
-            <View
-              className={`flex-1 items-center justify-center ${
-                isLargeScreen ? "w-1/2" : "w-9/12"
-              }`}
-            >
-              <Image
-                source={logoImage}
-                className="w-full h-32 object-contain mb-6"
-                resizeMode="contain"
-              />
-              <Text className="text-2xl font-bold mb-1 text-primary">
-                MiTutor UV
-              </Text>
-              <Text className="text-xl mb-6">Inicia Sesión</Text>
-              {/* Campo de correo */}
-              <TextInput
-                className="border border-gray-300 rounded-lg px-4 py-2 mb-4 w-full"
-                placeholder="Correo institucional"
-                accessibilityLabel="Campo de correo institucional"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-              {emailError ? (
-                <Text className="text-red-500 mb-4">{emailError}</Text>
-              ) : null}
-              {/* Campo de contraseña */}
-              <TextInput
-                className="border border-gray-300 rounded-lg px-4 py-2 mb-6 w-full"
-                placeholder="Contraseña"
-                accessibilityLabel="Contraseña"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-              {passwordError ? (
-                <Text className="text-red-500 mb-4">{passwordError}</Text>
-              ) : null}
-              {/* Botón de login */}
-              <StyledPressable
-                onPress={handleLogin}
-                className={`w-full p-4 rounded-lg bg-primary ${loading ? "opacity-50" : "active:opacity-70"}`}
-                disabled={loading}
-              >
-                <Text className="text-white text-center font-bold">
-                  {loading ? "Iniciando sesión..." : "Iniciar sesión"}
-                </Text>
-              </StyledPressable>
-            </View>
-          </View>
+          <LoginForm
+            email={email}
+            setEmail={setEmail}
+            password={password}
+            setPassword={setPassword}
+            loading={loading}
+            emailError={emailError}
+            passwordError={passwordError}
+            onLogin={handleLogin}
+            isLargeScreen={isLargeScreen}
+          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useSession } from "../../ctx";
+import React, { useState } from "react";
+import { useSession } from "../../../auth/ctx";
 import { styled } from "nativewind";
 import {
   Text,
@@ -10,102 +10,39 @@ import {
   TextInput,
 } from "react-native";
 import { Screen } from "../../../components/Screen";
-import { get, put } from "../../../services";
-import { GET_CONTENT, GET_USER } from "@env";
 import { useLocalSearchParams } from "expo-router";
 import { CancelIcon, Pen, CheckIcon } from "../../../components/icons/Icons";
-import { toast } from "react-toastify";
+import { useContent } from "../../../hooks/useContent";
 
 export default function App() {
   const { session } = useSession();
-  const { id, isEditing } = useLocalSearchParams();
-  const [content, setContent] = useState<{
-    _id: string;
-    question: string;
-    answer: string;
-    created_by: string;
-    category: string;
-    created_at: string;
-    updated_at: string;
+  const { id, isEditing } = useLocalSearchParams<{
+    id: string;
+    isEditing: string;
   }>();
-  const [isLoading, setLoading] = useState(true);
-  const [editingContent, setEditingContent] = useState(content);
-  const [authorName, setAuthorName] = useState<string>("");
-  const [editorName, setEditorName] = useState<string>("");
 
-  const StyledPressable = styled(Pressable);
   const [editing, setEditing] = useState(isEditing === "true");
+  const StyledPressable = styled(Pressable);
 
-  useEffect(() => {
-    fetchContent();
-  }, []);
+  const {
+    content,
+    authorName,
+    editorName,
+    isLoading,
+    editingContent,
+    setEditingContent,
+    updateContent,
+  } = useContent(id, session?.token);
 
-  /**
-   * fetchContent
-   * Obtiene la inforación del contenido
-   */
-  const fetchContent = async () => {
-    try {
-      setLoading(true);
-      const contentResponse = await get(`${GET_CONTENT}${id}`, session?.token);
-
-      setContent(contentResponse);
-      setEditingContent(contentResponse);
-
-      setAuthorName(await fetchUserData(contentResponse.created_by));
-      setEditorName(await fetchUserData(contentResponse.created_by));
-
-      setLoading(false);
-    } catch (error) {
-      toast.error("Ha ocurrido un error, vuelve a intentarlo");
-      console.log("fetchContent", error);
-      setLoading(false);
-    }
-  };
-
-  /**
-   * fetchUserData
-   * Obtiene los datos del usuario, según su ID
-   * @param userID Id del usuario
-   * @returns email del usuario
-   */
-  const fetchUserData = async (userID: string) => {
-    try {
-      const userResponse = await get(`${GET_USER}${userID}`, session?.token);
-      return userResponse.email;
-    } catch (error) {
-      console.log("fetchUserData", error);
-      return "No se encontró al usuario";
-    }
-  };
-
-  /**
-   * updateContent
-   * Actualiza el contenido
-   */
-  const updateContent = () => {
-    put(`${GET_CONTENT}${id}`, editingContent, session?.token)
-      .then((contentDetails) => {
-        console.log("updateContent:", contentDetails);
-        setContent(contentDetails);
-        setEditingContent(contentDetails);
-        setEditing(false);
-        toast.success("Contenido editado");
-      })
-      .catch((error) => {
-        console.log(error);
-        toast.error("Ha ocurrido un error, vuelve a intentarlo");
-      });
-  };
-
-  if (isLoading)
+  if (isLoading) {
     return (
       <Screen>
         <ActivityIndicator className="flex-1" size="large" color="#020617" />
       </Screen>
     );
+  }
 
-  if (content != null && editingContent != null)
+  if (content != null && editingContent != null) {
     return (
       <View className="flex-1 p-6 bg-background">
         <ScrollView className="flex-1 bg-background h-full">
@@ -121,13 +58,10 @@ export default function App() {
               </Text>
             </View>
             <View className="w-3/12 ml-auto flex flex-row">
-              {/* Botones solo visibles en modo edición */}
               {editing ? (
                 <>
                   <StyledPressable
-                    onPress={() => {
-                      updateContent();
-                    }}
+                    onPress={updateContent}
                     className="w-10 h-10 p-2 flex items-center justify-center mr-1 rounded-lg bg-success active:opacity-70"
                   >
                     <CheckIcon
@@ -138,9 +72,7 @@ export default function App() {
                   </StyledPressable>
 
                   <StyledPressable
-                    onPress={() => {
-                      setEditing(false);
-                    }}
+                    onPress={() => setEditing(false)}
                     className="w-10 h-10 p-2 flex items-center justify-center mr-1 rounded-lg bg-red-500 active:opacity-70"
                   >
                     <CancelIcon
@@ -152,9 +84,7 @@ export default function App() {
                 </>
               ) : (
                 <StyledPressable
-                  onPress={() => {
-                    setEditing(true);
-                  }}
+                  onPress={() => setEditing(true)}
                   className="w-10 h-10 p-2 flex items-center justify-center mr-1 rounded-lg bg-warning active:opacity-70"
                 >
                   <Pen className="text-center" size={20} color={"white"} />
@@ -165,14 +95,13 @@ export default function App() {
 
           <View className="mt-6 border-t border-gray-100">
             <View className="divide-y divide-gray-100">
-              {/* Título - Pregunta destacada */}
               <View className="px-4 py-6">
                 <Text className="text-sm font-medium leading-6 text-gray-900">
                   Pregunta
                 </Text>
                 {editing ? (
                   <TextInput
-                    className="mt-1 border border-gray-200 rounded-lg px-2 py-1 text-sm leading-6 text-gray-700  sm:col-span-2 sm:mt-0"
+                    className="mt-1 border border-gray-200 rounded-lg px-2 py-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                     value={editingContent.question}
                     onChangeText={(text) =>
                       setEditingContent({ ...editingContent, question: text })
@@ -192,7 +121,7 @@ export default function App() {
                 </Text>
                 {editing ? (
                   <TextInput
-                    className="mt-1 border border-gray-200 rounded-lg px-2 py-1 text-sm leading-6 text-gray-700  sm:col-span-2 sm:mt-0"
+                    className="mt-1 border border-gray-200 rounded-lg px-2 py-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                     value={editingContent.answer}
                     onChangeText={(text) =>
                       setEditingContent({ ...editingContent, answer: text })
@@ -205,17 +134,6 @@ export default function App() {
                 )}
               </View>
 
-              {/* Información adicional */}
-              <View className="px-4 py-6">
-                <Text className="text-sm font-medium leading-6 text-gray-900">
-                  Categoría
-                </Text>
-                <Text className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                  {content.category}
-                </Text>
-              </View>
-
-              {/* Creado por */}
               <View className="px-4 py-6">
                 <Text className="text-sm font-medium leading-6 text-gray-900">
                   Autor
@@ -225,7 +143,6 @@ export default function App() {
                 </Text>
               </View>
 
-              {/* Creado por */}
               <View className="px-4 py-6">
                 <Text className="text-sm font-medium leading-6 text-gray-900">
                   Actualizado por:
@@ -235,7 +152,6 @@ export default function App() {
                 </Text>
               </View>
 
-              {/* Fechas */}
               <View className="px-4 py-6">
                 <Text className="text-sm font-medium leading-6 text-gray-900">
                   Fecha de creación
@@ -258,4 +174,7 @@ export default function App() {
         </ScrollView>
       </View>
     );
+  }
+
+  return null;
 }
