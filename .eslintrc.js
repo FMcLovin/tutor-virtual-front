@@ -9,5 +9,11 @@ module.exports = {
         endOfLine: "auto",
       },
     ],
+    "import/no-unresolved": [
+      "error",
+      {
+        ignore: ["@env"], // Ignora los imports que empiezan con @env
+      },
+    ],
   },
 };
