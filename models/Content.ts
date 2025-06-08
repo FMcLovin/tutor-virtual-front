@@ -4,6 +4,7 @@ export type Content = {
   answer: string;
   created_by: string;
   category: string;
+  updated_by: string;
   created_at: string;
   updated_at: string;
 };
