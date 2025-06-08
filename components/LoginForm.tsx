@@ -46,6 +46,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
         {/* Campo de correo */}
         <StyledTextInput
+          testID="email-input"
           label="Correo institucional"
           icon="account"
           value={email}
@@ -58,6 +59,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
         {/* Campo de contraseña */}
         <StyledTextInput
+          testID="password-input"
           label="Contraseña"
           icon="lock"
           value={password}
@@ -69,6 +71,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
         />
 
         <FormButton
+          testID="login-button"
           isLoading={loading}
           onPress={() => onLogin(email, password)}
         >

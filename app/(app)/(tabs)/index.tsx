@@ -43,7 +43,9 @@ export default function Chat() {
       {isSendingMessage && (
         <View className="w-3/4 self-center fixed">
           <View className="p-3 rounded-lg my-2 w-auto max-w-fit bg-blue-200 self-center">
-            <Text className="text-base">Tu tutorUV está escribiendo...</Text>
+            <Text testID="ai-answer-indicator" className="text-base">
+              Tu tutorUV está escribiendo...
+            </Text>
           </View>
         </View>
       )}
@@ -57,6 +59,7 @@ export default function Chat() {
           onChangeText={setInputText}
         />
         <StyledPressable
+          testID="send-message-button"
           onPress={sendMessage}
           className="p-3 rounded-lg bg-primary active:opacity-70"
           disabled={isSendingMessage}

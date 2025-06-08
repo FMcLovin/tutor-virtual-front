@@ -87,6 +87,7 @@ export default function Manager() {
             />
           </StyledPressable>
           <StyledPressable
+            testID="export-button"
             onPress={() => exportData()}
             className="p-3 mr-1 mb-1 rounded-lg bg-secondary active:opacity-70  flex flex-row justify-between"
           >
@@ -168,6 +169,8 @@ export default function Manager() {
       />
 
       <Pressable
+        testID="new-content-button"
+        id="new-content-button"
         className="absolute bottom-6 right-6 bg-primary p-4 rounded-full shadow-lg"
         onPress={createContent}
       >

@@ -68,6 +68,7 @@ export default function Help() {
             </Text>
 
             <TextInput
+              testID="issue-input"
               className="border border-gray-300 rounded-lg px-4 py-2 mb-4 w-full"
               placeholder="Problema"
               value={issue}
@@ -79,6 +80,7 @@ export default function Help() {
 
             <View className="flex flex-row justify-between items-center">
               <Pressable
+                testID="issue-cancel-button"
                 onPress={closeModal}
                 className="bg-danger py-2 px-4 rounded-lg hover:bg-red-900"
                 disabled={isLoadingAction}
@@ -89,6 +91,7 @@ export default function Help() {
               </Pressable>
 
               <Pressable
+                testID="issue-button"
                 onPress={createTicket}
                 className="bg-success py-2 px-4 rounded-lg hover:bg-green-900"
                 disabled={isLoadingAction}
@@ -130,6 +133,7 @@ export default function Help() {
 
       {/* Botón para reportar un fallo */}
       <StyledPressable
+        testID="new-issue-button"
         className="absolute bottom-6 right-6 bg-primary p-4 rounded-full shadow-lg"
         onPress={() => setModalVisible(true)}
       >

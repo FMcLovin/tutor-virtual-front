@@ -68,6 +68,7 @@ export default function Support() {
             <View className="mb-4">
               <Text className="text-md text-black">Retroalimentación:</Text>
               <TextInput
+                testID="feedback-input"
                 className="border border-gray-300 rounded-lg p-2 mt-2"
                 placeholder="Sigue los siguientes pasos para..."
                 multiline
@@ -104,6 +105,7 @@ export default function Support() {
               </Pressable>
 
               <Pressable
+                testID="send-button"
                 onPress={changeStatus}
                 className="bg-success py-2 px-4 rounded-lg hover:bg-green-900"
                 disabled={isLoadingAction}
@@ -125,6 +127,7 @@ export default function Support() {
           <StyledPressable
             onPress={() => openModal(index)}
             className="active:opacity-70 active:border-white/50"
+            testID={`ticket-press-${index}`}
           >
             <View className="flex flex-row justify-between items-center py-5">
               <View className="flex-1 items-start">

@@ -92,6 +92,7 @@ export default function App() {
                 Pregunta
               </Text>
               <TextInput
+                testID="question-input"
                 className="mt-1 border border-gray-200 rounded-lg px-2 py-1 text-sm leading-6 text-gray-700  sm:col-span-2 sm:mt-0"
                 value={question}
                 onChangeText={setQuestion}
@@ -107,6 +108,7 @@ export default function App() {
                 Respuesta
               </Text>
               <TextInput
+                testID="answer-input"
                 className="mt-1 border border-gray-200 rounded-lg px-2 py-1 text-sm leading-6 text-gray-700  sm:col-span-2 sm:mt-0"
                 value={asnwer}
                 onChangeText={setAnswer}

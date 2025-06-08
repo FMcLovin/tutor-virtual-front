@@ -91,6 +91,7 @@ export default function App() {
                 </>
               ) : (
                 <StyledPressable
+                  testID="edit-button"
                   onPress={() => setEditing(true)}
                   className="w-10 h-10 p-2 flex items-center justify-center mr-1 rounded-lg bg-warning active:opacity-70"
                 >
@@ -108,6 +109,7 @@ export default function App() {
                 </Text>
                 {editing ? (
                   <TextInput
+                    testID="question-input"
                     className="mt-1 border border-gray-200 rounded-lg px-2 py-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                     value={editingContent.question}
                     onChangeText={(text) =>

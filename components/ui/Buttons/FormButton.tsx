@@ -23,7 +23,11 @@ const FormButton: FunctionComponent<ButtonProps> = ({
   ...props
 }) => {
   return (
-    <ButtonView onPress={props.onPress} style={props.style}>
+    <ButtonView
+      onPress={props.onPress}
+      style={props.style}
+      testID={props.testID}
+    >
       <RegularText
         style={[{ color: white, fontWeight: "bold" }, props.textStyle]}
       >
